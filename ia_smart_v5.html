@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA SMART · Dashboard Ejecutivo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080910;--s1:#0f1018;--s2:#161720;--s3:#1e1f2b;--s4:#252636;
+  --border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.12);
+  --text:#eceaf5;--muted:#5c5a72;--muted2:#8f8daa;
+  --green:#22d4a0;--yellow:#f0c040;--red:#f0506a;--orange:#f07840;
+  --purple:#7c6ef5;--purple2:#a598ff;--blue:#4aa8f5;--teal:#2bc8d5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+.shell{max-width:1300px;margin:0 auto;padding:2rem 1.75rem 5rem}
+
+/* header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 24px rgba(124,110,245,.25);flex-shrink:0}
+.hdr h1{font-size:1.2rem;font-weight:700;letter-spacing:-.025em}
+.hdr p{font-size:.71rem;color:var(--muted2);margin-top:3px;font-family:'DM Mono',monospace}
+.live{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;animation:blink 2.5s ease-in-out infinite;box-shadow:0 0 6px var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-btns{display:flex;gap:8px}
+.btn{background:var(--purple);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:.74rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn.ghost{background:var(--s2);border:1px solid var(--border2);color:var(--muted2)}
+.btn.ghost:hover{border-color:var(--purple);color:var(--purple2)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* config */
+.cfg{background:linear-gradient(135deg,rgba(124,110,245,.06),rgba(43,200,213,.03));border:1px solid rgba(124,110,245,.18);border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:1.75rem}
+.cfg-title{font-size:.67rem;font-weight:700;color:var(--purple2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:.75rem}
+.cfg input{background:var(--s1);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-size:.71rem;font-family:'DM Mono',monospace;outline:none;transition:border .2s,box-shadow .2s;width:100%}
+.cfg input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,110,245,.1)}
+.cfg input::placeholder{color:var(--muted)}
+.cfg-lbl{font-size:.62rem;color:var(--muted2);font-family:'DM Mono',monospace;margin-bottom:3px;font-weight:600}
+.hint{font-size:.68rem;color:var(--muted);line-height:1.7;font-family:'DM Mono',monospace}
+.hint strong{color:var(--muted2)}
+.hint code{background:var(--s3);padding:1px 6px;border-radius:4px}
+.err-box{background:rgba(240,80,106,.08);border:1px solid rgba(240,80,106,.2);border-radius:9px;padding:9px 13px;font-size:.73rem;color:var(--red);margin-top:.75rem;display:none}
+
+/* update bar */
+.ubar{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:var(--s1);border:1px solid var(--border);border-radius:10px;margin-bottom:1.5rem;font-size:.67rem;font-family:'DM Mono',monospace;color:var(--muted2)}
+.ubar.hide{display:none}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--kc,var(--purple)),transparent)}
+.kpi-lbl{font-size:.61rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.45rem}
+.kpi-val{font-size:1.9rem;font-weight:700;letter-spacing:-.05em;color:var(--kc,var(--text));line-height:1;font-family:'DM Mono',monospace}
+.kpi-sub{font-size:.64rem;color:var(--muted);margin-top:.35rem;font-family:'DM Mono',monospace}
+
+/* grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g12{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:12px}
+
+/* cards */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+.card.full{grid-column:1/-1}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-title{font-size:.61rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
+.badge{font-size:.61rem;font-family:'DM Mono',monospace;color:var(--muted);background:var(--s3);padding:2px 8px;border-radius:20px}
+
+/* section label */
+.sec{font-size:.61rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin:1.4rem 0 .7rem;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* bars */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:.72rem;color:var(--text);width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.bar-track{flex:1;height:7px;background:var(--s3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.bar-pct{font-size:.67rem;color:var(--muted2);width:36px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+
+/* alianza grid */
+.ali-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ali{background:var(--s2);border-radius:12px;padding:11px 13px;border:1px solid var(--border);transition:all .18s}
+.ali:hover{border-color:var(--border2);transform:translateY(-1px)}
+.ali-name{font-size:.61rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.ali-pct{font-size:1.45rem;font-weight:700;letter-spacing:-.04em;font-family:'DM Mono',monospace}
+.ali-sub{font-size:.61rem;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace}
+.ali-bar{height:3px;background:var(--s3);border-radius:2px;margin-top:8px;overflow:hidden}
+.ali-bar-fill{height:100%;border-radius:2px;transition:width .7s}
+
+/* segs */
+.seg-wrap{margin-bottom:9px}
+.seg-wrap:last-child{margin-bottom:0}
+.seg-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.seg-name{font-size:.67rem;color:var(--muted2);font-weight:600}
+.seg-count{font-size:.61rem;color:var(--muted);font-family:'DM Mono',monospace}
+.seg-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px}
+.seg-sl{min-width:2px;transition:width .6s ease}
+.legend{display:flex;flex-wrap:wrap;gap:9px;font-size:.61rem;color:var(--muted);margin-bottom:12px}
+.legend span{display:flex;align-items:center;gap:4px}
+.ldot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* proyectos estado pills row */
+.estado-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+.epill{background:var(--ebg);border:1px solid var(--eb);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:default}
+.epill:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.epill-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.epill-icon{font-size:.85rem;color:var(--ec);opacity:.8}
+.epill-val{font-size:2rem;font-weight:700;color:var(--ec);font-family:'DM Mono',monospace;line-height:1;letter-spacing:-.04em}
+.epill-bar-track{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.epill-bar-fill{height:100%;background:var(--ec);border-radius:2px;width:0;opacity:.7}
+.epill-bottom{display:flex;align-items:center;justify-content:space-between}
+.epill-lbl{font-size:.62rem;font-weight:700;color:var(--ec);text-transform:uppercase;letter-spacing:.08em;opacity:.9}
+.epill-pct{font-size:.62rem;color:var(--ec);font-family:'DM Mono',monospace;opacity:.6}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+.tbl th{color:var(--muted);font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;padding:0 6px 9px 0;text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:8px 6px 8px 0;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.mono{font-family:'DM Mono',monospace;font-size:.69rem}
+.pill{display:inline-flex;align-items:center;font-size:.6rem;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.p-r{background:rgba(240,80,106,.1);color:var(--red);border:1px solid rgba(240,80,106,.18)}
+.p-w{background:rgba(240,192,64,.08);color:var(--yellow);border:1px solid rgba(240,192,64,.18)}
+.p-g{background:rgba(34,212,160,.08);color:var(--green);border:1px solid rgba(34,212,160,.18)}
+.p-b{background:rgba(74,168,245,.08);color:var(--blue);border:1px solid rgba(74,168,245,.18)}
+.resp{display:inline-flex;align-items:center;font-size:.6rem;padding:2px 7px;border-radius:20px;background:var(--s3);color:var(--muted2);border:1px solid var(--border)}
+
+/* loading */
+.loading{display:flex;align-items:center;justify-content:center;padding:2.5rem;color:var(--muted);font-size:.77rem;gap:10px}
+.spin{width:15px;height:15px;border:2px solid var(--border2);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){.kpis{grid-template-columns:repeat(3,1fr)}.g2,.g12{grid-template-columns:1fr}.ali-grid{grid-template-columns:1fr 1fr}.cfg-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.kpis{grid-template-columns:1fr 1fr}}
+
+/* ── vista buttons ── */
+.btn-vista{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:14px 20px;cursor:pointer;transition:all .2s;color:var(--text);min-width:220px;text-align:left}
+.btn-vista:hover{border-color:var(--purple);background:rgba(124,110,245,.06);transform:translateY(-2px);box-shadow:0 4px 20px rgba(124,110,245,.12)}
+.bv-icon{font-size:1.4rem;flex-shrink:0}
+.bv-info{display:flex;flex-direction:column;gap:3px;flex:1}
+.bv-title{font-size:.82rem;font-weight:700;color:var(--text)}
+.bv-sub{font-size:.67rem;color:var(--muted2);font-family:'DM Mono',monospace}
+.bv-arrow{font-size:1rem;color:var(--purple);font-weight:700;transition:transform .2s}
+.btn-vista:hover .bv-arrow{transform:translateX(4px)}
+
+/* ── vistas ── */
+.vista{animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+#main-content{transition:opacity .2s}
+</style>
+</head>
+<body>
+<div class="shell" id="main-content">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-brand">
+    <div class="brand-icon">⚡</div>
+    <div>
+      <h1><span class="live"></span>IA SMART · Dashboard Ejecutivo</h1>
+      <p id="last-update">Conecta tus Google Sheets para cargar datos en vivo</p>
+    </div>
+  </div>
+  <div class="hdr-btns">
+    <button class="btn ghost" onclick="loadDemo()">Ver demo</button>
+    <button class="btn" id="btn-load" onclick="loadSheets()">↻ Cargar datos</button>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="cfg">
+  <div class="cfg-title">📊 Conexión · Google Sheets CSV</div>
+  <div class="cfg-grid">
+    <div>
+      <div class="cfg-lbl">Hoja5 · Métricas calculadas</div>
+      <input id="url5" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRb12NuISPNgb_K3-hw3CQl41gBaihjAeX4SEP1o4-OnvECrXzKtUahXK1EqY1q2A/pub?gid=231933605&single=true&output=csv">
+    </div>
+    <div>
+      <div class="cfg-lbl">Hoja1 · Tareas</div>
+      <input id="url1" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRb12NuISPNgb_K3-hw3CQl41gBaihjAeX4SEP1o4-OnvECrXzKtUahXK1EqY1q2A/pub?gid=1837031830&single=true&output=csv">
+    </div>
+    <div>
+      <div class="cfg-lbl">Hoja2 · Proyectos</div>
+      <input id="url2" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRb12NuISPNgb_K3-hw3CQl41gBaihjAeX4SEP1o4-OnvECrXzKtUahXK1EqY1q2A/pub?gid=386302620&single=true&output=csv">
+    </div>
+  </div>
+  <div class="hint">
+    <strong>Hoja5</strong> → KPIs · avance células · avance alianzas · estados · proyectos por estado &nbsp;|&nbsp;
+    <strong>Hoja1</strong> → tareas en riesgo &nbsp;|&nbsp;
+    <strong>Hoja2</strong> → proyectos y detalle por célula<br>
+    Publica cada hoja como <code>CSV</code> en <strong>Archivo → Compartir → Publicar en la web</strong>
+  </div>
+  <div class="err-box" id="err"></div>
+</div>
+
+<!-- UPDATE BAR -->
+<div class="ubar hide" id="ubar">
+  <span id="ubar-ts">—</span>
+  <span id="ubar-counts" style="color:var(--muted)">—</span>
+</div>
+
+<!-- KPIs -->
+<div class="kpis">
+  <div class="kpi" style="--kc:var(--purple2)">
+    <div class="kpi-lbl">Avance global</div>
+    <div class="kpi-val" id="k-avance">—</div>
+    <div class="kpi-sub">promedio células activas</div>
+  </div>
+  <div class="kpi" style="--kc:var(--blue)">
+    <div class="kpi-lbl">Proyectos totales</div>
+    <div class="kpi-val" id="k-proy">—</div>
+    <div class="kpi-sub" id="k-proy-sub">—</div>
+  </div>
+  <div class="kpi" style="--kc:var(--red)">
+    <div class="kpi-lbl">Tareas en riesgo</div>
+    <div class="kpi-val" id="k-riesgo">—</div>
+    <div class="kpi-sub">requieren atención</div>
+  </div>
+  <div class="kpi" style="--kc:var(--orange)">
+    <div class="kpi-lbl">Tareas bloqueadas</div>
+    <div class="kpi-val" id="k-bloq">—</div>
+    <div class="kpi-sub">con bloqueo activo</div>
+  </div>
+  <div class="kpi" style="--kc:var(--yellow)">
+    <div class="kpi-lbl">Días atraso prom.</div>
+    <div class="kpi-val" id="k-dias">—</div>
+    <div class="kpi-sub">tareas con atraso</div>
+  </div>
+</div>
+
+<!-- VISTA EJECUTIVA -->
+<div class="sec">Vista ejecutiva</div>
+<div class="g2">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Avance por célula</div>
+      <div class="badge" id="b-cel">—</div>
+    </div>
+    <div id="cel-bars"><div class="loading"><div class="spin"></div>esperando datos…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Avance por alianza</div>
+      <div class="badge" id="b-ali">—</div>
+    </div>
+    <div class="ali-grid" id="ali-grid"><div class="loading" style="grid-column:1/-1"><div class="spin"></div>esperando datos…</div></div>
+  </div>
+</div>
+
+<!-- DISTRIBUCIÓN + PROYECTOS ESTADO -->
+<div class="sec">Operativo</div>
+<div class="g12">
+  <div class="card">
+    <div class="card-head"><div class="card-title">Estados por alianza</div></div>
+    <div class="legend">
+      <span><div class="ldot" style="background:#22d4a0"></div>Cerrado</span>
+      <span><div class="ldot" style="background:#2bc8d5"></div>Estabilización</span>
+      <span><div class="ldot" style="background:#4aa8f5"></div>Despliegue</span>
+      <span><div class="ldot" style="background:#7c6ef5"></div>Desarrollo+P</span>
+      <span><div class="ldot" style="background:#f0c040"></div>Diseño</span>
+      <span><div class="ldot" style="background:#f07840"></div>Stan By</span>
+      <span><div class="ldot" style="background:#5c5a72"></div>Sin iniciar</span>
+    </div>
+    <div id="seg-bars"><div class="loading"><div class="spin"></div>esperando…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Proyectos por estado</div>
+      <div class="badge" id="b-proy-estado">—</div>
+    </div>
+    <div class="estado-row" id="estado-row">
+      <div class="loading"><div class="spin"></div>esperando…</div>
+    </div>
+
+  </div>
+</div>
+
+
+</div><!-- /shell -->
+
+<!-- BOTONES VISTAS DETALLE -->
+<div id="btns-vistas" style="max-width:1300px;margin:0 auto;padding:.25rem 1.75rem 1.5rem;display:flex;gap:10px;flex-wrap:wrap">
+  <button class="btn-vista" onclick="openVista('riesgo')">
+    <span class="bv-icon">⚠️</span>
+    <span class="bv-info">
+      <span class="bv-title">Tareas en riesgo</span>
+      <span class="bv-sub" id="bv-riesgo-count">cargando…</span>
+    </span>
+    <span class="bv-arrow">→</span>
+  </button>
+  <button class="btn-vista" onclick="openVista('celulas')">
+    <span class="bv-icon">🏢</span>
+    <span class="bv-info">
+      <span class="bv-title">Detalle por célula</span>
+      <span class="bv-sub" id="bv-cel-count">cargando…</span>
+    </span>
+    <span class="bv-arrow">→</span>
+  </button>
+  <button class="btn-vista" onclick="openVista('proyectos')">
+    <span class="bv-icon">📋</span>
+    <span class="bv-info">
+      <span class="bv-title">Proyectos · avance y riesgo</span>
+      <span class="bv-sub" id="bv-proy-count">cargando…</span>
+    </span>
+    <span class="bv-arrow">→</span>
+  </button>
+</div>
+
+<!-- VISTA: TAREAS EN RIESGO -->
+<div id="vista-riesgo" class="vista" style="display:none">
+  <div style="max-width:1300px;margin:0 auto;padding:0 1.75rem 4rem">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <button class="btn ghost" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:.8rem;font-weight:700;color:var(--text)">Tareas en riesgo</span>
+      <div class="badge" id="b-risk">—</div>
+    </div>
+    <div class="card full">
+      <table class="tbl">
+        <thead><tr>
+          <th>Actividad</th><th>Célula</th><th>Proyecto</th><th>Responsable</th><th>Alianza activa</th><th>% Avance</th><th>Días atraso</th><th>Bloqueado</th>
+        </tr></thead>
+        <tbody id="risk-tbody"><tr><td colspan="8"><div class="loading"><div class="spin"></div>esperando…</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA: DETALLE POR CÉLULA -->
+<div id="vista-celulas" class="vista" style="display:none">
+  <div style="max-width:1300px;margin:0 auto;padding:0 1.75rem 4rem">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <button class="btn ghost" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:.8rem;font-weight:700;color:var(--text)">Detalle por célula</span>
+      <div class="badge" id="b-celdet">—</div>
+    </div>
+    <div class="card full">
+      <div id="cel-det"><div class="loading"><div class="spin"></div>esperando datos…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA: PROYECTOS AVANCE Y RIESGO -->
+<div id="vista-proyectos" class="vista" style="display:none">
+  <div style="max-width:1300px;margin:0 auto;padding:0 1.75rem 4rem">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <button class="btn ghost" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:.8rem;font-weight:700;color:var(--text)">Proyectos · avance y riesgo</span>
+      <div class="badge" id="b-proy">—</div>
+    </div>
+    <div class="card full">
+      <table class="tbl">
+        <thead><tr>
+          <th>Proyecto</th><th>Célula</th><th>Avance</th><th>Días</th><th>En riesgo</th><th>Bloqueadas</th><th>Estado</th>
+        </tr></thead>
+        <tbody id="proy-tbody"><tr><td colspan="7"><div class="loading"><div class="spin"></div>esperando…</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── URLs pre-cargadas ─── */
+const URLS = {
+  h5: document.getElementById('url5'),
+  h1: document.getElementById('url1'),
+  h2: document.getElementById('url2'),
+};
+
+/* ─── Constantes ─── */
+const ALI_COLS = ['E. UNINORTE','E. CENTRAL','E. UP','E. UCSS','E. EAFIT P','E. EAFIT I','E. EAFIT D','E. UNAB','E. UNIS'];
+const ESTADO_C = {'Cerrado':'#22d4a0','Estabilización':'#2bc8d5','Despliegue':'#4aa8f5','Desarrollo + Pruebas':'#7c6ef5','Diseño':'#f0c040','Stan By':'#f07840','Sin iniciar':'#5c5a72','Sin empezar':'#5c5a72'};
+const ESTADO_ORDER = ['Cerrado','Estabilización','Despliegue','Desarrollo + Pruebas','Diseño','Stan By','Sin iniciar','Sin empezar'];
+const MAX_DIAS = 500;
+
+/* ─── Helpers ─── */
+function pctC(v){ return v>=.7?'var(--green)':v>=.4?'var(--yellow)':'var(--red)'; }
+function n(v){ const x=parseFloat(String(v).replace('%','')); return isNaN(x)?0:x; }
+function pct(v){ const x=n(v); return x>1?x/100:x; } // handle both 0.5 and 50%
+function showErr(m){ const e=document.getElementById('err'); e.textContent=m; e.style.display='block'; }
+function hideErr(){ document.getElementById('err').style.display='none'; }
+
+/* ─── CSV Parser ─── */
+function parseCSV(txt){
+  const lines=txt.trim().split('\n');
+  if(lines.length<2) return [];
+  const hdr=splitLine(lines[0]);
+  return lines.slice(1).map(l=>{
+    const vals=splitLine(l);
+    const o={};
+    hdr.forEach((h,i)=>{ o[h.trim()]=(vals[i]||'').trim(); });
+    return o;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+function splitLine(l){
+  const r=[];let cur='';let q=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(c==='"'){q=!q;continue;}
+    if(c===','&&!q){r.push(cur);cur='';continue;}
+    cur+=c;
+  }
+  r.push(cur);return r;
+}
+
+/* ─── PARSE HOJA5 ─── */
+/* Hoja5 no tiene encabezados — usamos parser RAW por índice de fila.
+   Fila 0 = vacía (encabezado CSV), fila 2=Avance Global, fila 3=Proyectos...
+   Tabla estados: fila 32=headers alianzas, filas 33-41=estados */
+function parseCSVRaw(txt){
+  // Returns array of arrays (not objects)
+  const lines = txt.trim().split('\n');
+  return lines.map(l => splitLine(l));
+}
+
+function parseHoja5(csvText){
+  const raw = parseCSVRaw(csvText);
+  // raw[0] = empty header row
+  // raw[i] corresponds to Excel row i+1
+  // Excel row 3 = raw[2], Excel row 4 = raw[3], etc.
+  const r = (i) => raw[i] || [];
+  const v = (i, col=1) => (r(i)[col] || '').trim();
+
+  // Helper: parse value that could be "12.9%", "0.129", or "13"
+  const parseVal = (str) => {
+    const s = (str||'').trim();
+    if(s.endsWith('%')) return parseFloat(s) / 100;  // "12.9%" → 0.129
+    const x = parseFloat(s);
+    if(isNaN(x)) return 0;
+    // If value > 1 and looks like a percentage (e.g. 13), divide by 100
+    // But for counts (proyectos, riesgo) we want the raw number
+    return x;
+  };
+  const parsePct = (str) => {
+    const s = (str||'').trim();
+    if(s.endsWith('%')) return parseFloat(s) / 100;
+    const x = parseFloat(s);
+    if(isNaN(x)) return 0;
+    return x > 1 ? x / 100 : x;  // 13 → 0.13, 0.129 → 0.129
+  };
+
+  const data = {
+    kpis: {
+      avance:     parsePct(v(2)),           // R3: Avance Global
+      proyectos:  parseFloat(v(3)) || 0,   // R4: Proyectos Totales
+      riesgo:     parseFloat(v(4)) || 0,   // R5: Tareas en Riesgo
+      bloqueadas: parseFloat(v(5)) || 0,   // R6: Tareas Bloqueadas
+      diasProm:   parseFloat(v(6)) || 0,   // R7: Dias Atraso Promedio
+    },
+    celulas: [],
+    alianzas: [],
+    estados: [],
+    proyEstado: {},
+  };
+
+  // Células: filas 10-15 (raw indices 10-15)
+  const celNames = ['Impulsar','Sincronizar','Acompañar','Retener','Maximizar','Transformar','Atraer'];
+  for(let i=10; i<=16; i++){
+    const nombre = (r(i)[0]||'').trim();
+    const val = parseFloat(r(i)[1]||0);
+    if(celNames.includes(nombre) && !isNaN(val)){
+      data.celulas.push({nombre, avance: parsePct(r(i)[1]||'0')});
+    }
+  }
+
+  // Alianzas: filas 20-28 (raw indices 20-28)
+  for(let i=20; i<=29; i++){
+    const nombre = (r(i)[0]||'').trim();
+    const val = parseFloat(r(i)[1]||0);
+    if(nombre.startsWith('E. ')){
+      const av = parsePct(r(i)[1]||'0');
+      if(av > 0) data.alianzas.push({nombre: nombre.replace('E. ',''), avance: av});
+    }
+  }
+
+  // Estados tabla: fila 32 = headers (raw[32]), filas 33-41 = datos (raw[33-41])
+  // raw[32] = ['', 'E. UNINORTE', 'E. CENTRAL', 'E. UP', ...]
+  const aliHeaders = [];
+  const hdrRow = r(32);
+  for(let i=1; i<hdrRow.length; i++){
+    const h = (hdrRow[i]||'').trim().replace('E. ','');
+    if(h && h !== 'TOTAL') aliHeaders.push(h);
+  }
+
+  const estadosValidos = ['Sin iniciar','Sin empezar','Stan By','Diseño','Desarrollo + Pruebas','Despliegue','Estabilización','Cerrado'];
+  for(let i=33; i<=41; i++){
+    const estadoNombre = (r(i)[0]||'').trim();
+    if(!estadosValidos.includes(estadoNombre)) continue;
+    const estadoRow = {estado: estadoNombre};
+    aliHeaders.forEach((h, idx) => {
+      estadoRow[h] = parseFloat(r(i)[idx+1]||0) || 0;
+    });
+    data.estados.push(estadoRow);
+  }
+
+  // Proyectos por estado: filas 48-51 (raw 48-51)
+  data.proyEstado = {
+    completado:  parseFloat(v(48)) || 0,  // R49: Completado
+    noIniciado:  parseFloat(v(49)) || 0,  // R50: No Iniciado
+    atrasado:    parseFloat(v(50)) || 0,  // R51: Atrasado
+    enProgreso:  parseFloat(v(51)) || 0,  // R52: En Progreso
+  };
+
+  return data;
+}
+
+/* ─── RENDER desde Hoja5 ─── */
+function renderFromH5(h5data){
+  // KPIs
+  const k = h5data.kpis;
+  document.getElementById('k-avance').textContent = k.avance ? Math.round(k.avance*100)+'%' : '—';
+  document.getElementById('k-proy').textContent = k.proyectos || '—';
+  document.getElementById('k-proy-sub').textContent = `${k.proyectos} proyectos totales`;
+  document.getElementById('k-riesgo').textContent = k.riesgo || '—';
+  document.getElementById('k-bloq').textContent = k.bloqueadas || '—';
+  document.getElementById('k-dias').textContent = k.diasProm && k.diasProm < MAX_DIAS ? Math.round(k.diasProm)+'d' : '—';
+
+  // Células
+  const celulas = [...h5data.celulas].sort((a,b)=>b.avance-a.avance);
+  const celEl = document.getElementById('cel-bars'); celEl.innerHTML='';
+  celulas.forEach(c=>{
+    const p=Math.round(c.avance*100);
+    celEl.innerHTML+=`<div class="bar-row">
+      <span class="bar-lbl" title="${c.nombre}">${c.nombre}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${pctC(c.avance)}"></div></div>
+      <span class="bar-pct">${p}%</span>
+    </div>`;
+  });
+  document.getElementById('b-cel').textContent=`${celulas.length} células`;
+
+  // Alianzas
+  const alis = [...h5data.alianzas].sort((a,b)=>b.avance-a.avance);
+  const aliEl = document.getElementById('ali-grid'); aliEl.innerHTML='';
+  alis.forEach(a=>{
+    const p=Math.round(a.avance*100);
+    aliEl.innerHTML+=`<div class="ali">
+      <div class="ali-name">${a.nombre.replace('E. ','')}</div>
+      <div class="ali-pct" style="color:${pctC(a.avance)}">${p}%</div>
+      <div class="ali-bar"><div class="ali-bar-fill" style="width:${p}%;background:${pctC(a.avance)}"></div></div>
+    </div>`;
+  });
+  document.getElementById('b-ali').textContent=`${alis.length} alianzas`;
+
+  // Segs estados por alianza
+  const segEl = document.getElementById('seg-bars'); segEl.innerHTML='';
+  const aliNames = ['UNINORTE','CENTRAL','UP','UCSS','EAFIT P','EAFIT I','EAFIT D','UNAB','UNIS'];
+  aliNames.forEach(ali=>{
+    // Build counts from estados table
+    const counts = {};
+    let total = 0;
+    h5data.estados.forEach(row=>{
+      const v = row[ali];
+      if(v && v>0 && row.estado !== 'na'){
+        counts[row.estado] = v;
+        total += v;
+      }
+    });
+    if(!total) return;
+    let segs='';
+    ESTADO_ORDER.forEach(k=>{
+      if(!counts[k]) return;
+      const w=Math.round(counts[k]/total*100);
+      segs+=`<div class="seg-sl" style="width:${w}%;background:${ESTADO_C[k]||'#5c5a72'}" title="${k}: ${counts[k]}"></div>`;
+    });
+    segEl.innerHTML+=`<div class="seg-wrap">
+      <div class="seg-top"><span class="seg-name">${ali}</span><span class="seg-count">${total} tareas</span></div>
+      <div class="seg-bar">${segs}</div>
+    </div>`;
+  });
+
+  // Proyectos por estado
+  const pe = h5data.proyEstado;
+  const total = (pe.completado||0)+(pe.noIniciado||0)+(pe.atrasado||0)+(pe.enProgreso||0);
+  const erEl = document.getElementById('estado-row'); erEl.innerHTML='';
+  const estados = [
+    {lbl:'Atrasado',     val:pe.atrasado||0,   c:'#f0506a', bg:'rgba(240,80,106,.08)',  border:'rgba(240,80,106,.2)',  icon:'⚠'},
+    {lbl:'En Progreso',  val:pe.enProgreso||0,  c:'#4aa8f5', bg:'rgba(74,168,245,.08)', border:'rgba(74,168,245,.2)',  icon:'●'},
+    {lbl:'Completado',   val:pe.completado||0,  c:'#22d4a0', bg:'rgba(34,212,160,.08)', border:'rgba(34,212,160,.2)',  icon:'✓'},
+    {lbl:'No Iniciado',  val:pe.noIniciado||0,  c:'#8f8daa', bg:'rgba(143,141,170,.06)',border:'rgba(143,141,170,.15)',icon:'○'},
+  ];
+  const pct_total = total || 1;
+  estados.forEach(e=>{
+    const pct = Math.round((e.val/pct_total)*100);
+    erEl.innerHTML+=`<div class="epill" style="--ec:${e.c};--eb:${e.border};--ebg:${e.bg}">
+      <div class="epill-top">
+        <span class="epill-icon">${e.icon}</span>
+        <span class="epill-val">${e.val}</span>
+      </div>
+      <div class="epill-bar-track">
+        <div class="epill-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="epill-bottom">
+        <span class="epill-lbl">${e.lbl}</span>
+        <span class="epill-pct">${pct}%</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('b-proy-estado').textContent=`${total} total`;
+  // animate bars
+  setTimeout(()=>{
+    document.querySelectorAll('.epill-bar-fill').forEach(el=>{
+      el.style.transition='width .8s cubic-bezier(.4,0,.2,1)';
+    });
+  }, 50);
+}
+
+/* ─── RENDER PROYECTOS desde Hoja2 ─── */
+function renderProyectos(t2){
+  const tbody=document.getElementById('proy-tbody'); tbody.innerHTML='';
+  const sorted=[...t2].sort((a,b)=>n(b['Tareas en Riesgo'])-n(a['Tareas en Riesgo'])||n(b['Días Promedio Atrasados'])-n(a['Días Promedio Atrasados']));
+  sorted.forEach(r=>{
+    const nombre=r['Nombre Proyecto']||'—';
+    const cel=r['Célula']||r['Celula']||'—';
+    const av=pct(r['% Avance Proyecto']);
+    const dias=n(r['Días Promedio Atrasados']);
+    const diasOk=dias>0&&dias<MAX_DIAS;
+    const estado=r['Estado Proyecto']||'';
+    let pill,ptxt;
+    if(estado==='Atrasado'){pill='p-r';ptxt='⚠ atrasado';}
+    else if(estado==='Completado'){pill='p-g';ptxt='✓ completado';}
+    else if(estado==='En Progreso'){pill='p-b';ptxt='● en progreso';}
+    else{pill='p-w';ptxt='○ no iniciado';}
+    const short=nombre.length>32?nombre.slice(0,30)+'…':nombre;
+    const riesgo=n(r['Tareas en Riesgo']);
+    const bloq=n(r['Tareas Bloqueadas']);
+    tbody.innerHTML+=`<tr>
+      <td title="${nombre}">${short}</td>
+      <td><span class="resp">${cel}</span></td>
+      <td class="mono" style="color:${pctC(av)};font-weight:600">${Math.round(av*100)}%</td>
+      <td class="mono" style="color:${diasOk?'var(--red)':'var(--muted)'}">${diasOk?Math.round(dias)+'d':'—'}</td>
+      <td class="mono" style="color:${riesgo>0?'var(--red)':'var(--muted)'}">${riesgo>0?riesgo:'—'}</td>
+      <td class="mono" style="color:${bloq>0?'var(--orange)':'var(--muted)'}">${bloq>0?bloq:'—'}</td>
+      <td><span class="pill ${pill}">${ptxt}</span></td>
+    </tr>`;
+  });
+  if(document.getElementById('b-proy')) document.getElementById('b-proy').textContent=`${t2.length} proyectos`;
+  if(document.getElementById('bv-proy-count')) document.getElementById('bv-proy-count').textContent=`${t2.length} proyectos`;
+}
+
+/* ─── RENDER TAREAS RIESGO desde Hoja1 ─── */
+function renderRisk(t1){
+  const risky=t1.filter(r=>{
+    const rv=(r['Riesgo']||r['Riesgo ']||'').trim().toUpperCase();
+    return rv==='YES'||rv==='TRUE'||rv==='SÍ'||rv==='SI'||rv==='VERDADERO';
+  }).sort((a,b)=>{
+    const da=n(a['Días Atraso']); const db=n(b['Días Atraso']);
+    const va=da>0&&da<MAX_DIAS?da:0; const vb=db>0&&db<MAX_DIAS?db:0;
+    return vb-va;
+  });
+  document.getElementById('b-risk').textContent=`${risky.length} tareas`;
+  document.getElementById('bv-riesgo-count').textContent=`${risky.length} tareas en riesgo`;
+  const tbody=document.getElementById('risk-tbody'); tbody.innerHTML='';
+  if(!risky.length){
+    tbody.innerHTML='<tr><td colspan="8" style="color:var(--green);font-size:.72rem">✓ Sin tareas en riesgo</td></tr>';
+    return;
+  }
+  risky.slice(0,30).forEach(r=>{
+    const act=r['Actividad']||'—';
+    const cel=r['Célula']||'—';
+    const proy=r['Proyecto']||'—';
+    const resp=r['Responsable']||'—';
+    const av=pct(r['% Completo General']);
+    const dias=n(r['Días Atraso']);
+    const diasOk=dias>0&&dias<MAX_DIAS;
+    const bloq=(r['Bloqueado2']||r['Bloqueado']||'').trim().toUpperCase();
+    const esBloq=bloq==='YES'||bloq==='TRUE'||bloq==='VERDADERO'||bloq==='1';
+    const alis=ALI_COLS.filter(c=>r[c]&&r[c].toLowerCase()!=='na').map(c=>c.replace('E. ','')).join(', ')||'—';
+    tbody.innerHTML+=`<tr>
+      <td title="${act}">${act.length>32?act.slice(0,30)+'…':act}</td>
+      <td><span class="resp">${cel}</span></td>
+      <td title="${proy}" style="font-size:.65rem;color:var(--muted2)">${proy.length>24?proy.slice(0,22)+'…':proy}</td>
+      <td class="mono" style="font-size:.65rem">${resp}</td>
+      <td class="mono" style="font-size:.63rem;color:var(--muted2)">${alis}</td>
+      <td class="mono" style="color:${pctC(av)};font-weight:600">${Math.round(av*100)}%</td>
+      <td class="mono" style="color:${diasOk?'var(--red)':'var(--muted)'}">${diasOk?Math.round(dias)+'d':'—'}</td>
+      <td>${esBloq?'<span class="pill p-r">🔒 sí</span>':'<span style="color:var(--muted);font-size:.63rem">—</span>'}</td>
+    </tr>`;
+  });
+  if(risky.length>30) tbody.innerHTML+=`<tr><td colspan="8" style="color:var(--muted);font-size:.67rem;font-family:'DM Mono',monospace">…y ${risky.length-30} más</td></tr>`;
+}
+
+/* ─── RENDER DETALLE CÉLULA desde Hoja2 ─── */
+function renderCelDet(t2){
+  const cmap={};
+  t2.forEach(r=>{
+    const c=r['Célula']||r['Celula']; if(!c) return;
+    if(!cmap[c]) cmap[c]=[];
+    cmap[c].push(r);
+  });
+  const el=document.getElementById('cel-det'); el.innerHTML='';
+  let totalP=0;
+  Object.entries(cmap).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cel,ps])=>{
+    totalP+=ps.length;
+    const psorted=[...ps].sort((a,b)=>n(b['Tareas en Riesgo'])-n(a['Tareas en Riesgo']));
+    const avgCel=ps.reduce((s,p)=>s+pct(p['% Avance Proyecto']),0)/ps.length;
+    const rows=psorted.map(p=>{
+      const av=pct(p['% Avance Proyecto']);
+      const dias=n(p['Días Promedio Atrasados']);
+      const diasOk=dias>0&&dias<MAX_DIAS;
+      const riesgo=n(p['Tareas en Riesgo']);
+      const nombre=p['Nombre Proyecto']||'—';
+      return `<div class="bar-row">
+        <span class="bar-lbl" title="${nombre}" style="width:220px;font-size:.71rem">${nombre.length>40?nombre.slice(0,38)+'…':nombre}</span>
+        <div class="bar-track" style="height:8px"><div class="bar-fill" style="width:${Math.round(av*100)}%;background:${pctC(av)}"></div></div>
+        <span class="bar-pct" style="width:38px">${Math.round(av*100)}%</span>
+        <span class="mono" style="width:40px;color:${diasOk?'var(--red)':'var(--muted)'};font-size:.63rem">${diasOk?Math.round(dias)+'d':''}</span>
+        ${riesgo>0?`<span class="pill p-r" style="font-size:.59rem;padding:2px 6px">⚠ ${riesgo}</span>`:''}
+      </div>`;
+    }).join('');
+    el.innerHTML+=`<div style="margin-bottom:1.25rem">
+      <div style="font-size:.69rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;display:flex;align-items:center;gap:8px">
+        ${cel}
+        <span style="font-weight:400;color:var(--muted);font-size:.63rem">${ps.length} proyectos</span>
+        <span style="color:${pctC(avgCel)};font-size:.63rem;font-family:'DM Mono',monospace;font-weight:600">${Math.round(avgCel*100)}% promedio</span>
+      </div>${rows}
+    </div>`;
+  });
+  document.getElementById('b-celdet').textContent=`${totalP} proyectos`;
+  document.getElementById('bv-cel-count').textContent=`${totalP} proyectos en ${Object.keys(cmap).length} células`;
+}
+
+/* ─── MAIN LOAD ─── */
+async function loadSheets(){
+  const u5=document.getElementById('url5').value.trim();
+  const u1=document.getElementById('url1').value.trim();
+  const u2=document.getElementById('url2').value.trim();
+  if(!u5||!u1||!u2){showErr('Completa las 3 URLs CSV para continuar.');return;}
+  hideErr();
+  const btn=document.getElementById('btn-load');
+  btn.textContent='⏳ Cargando…'; btn.disabled=true;
+  document.getElementById('last-update').textContent='Cargando desde Google Sheets…';
+
+  try{
+    const [r5,r1,r2]=await Promise.all([
+      fetch(u5).then(r=>{if(!r.ok)throw new Error('Error Hoja5: '+r.status);return r.text();}),
+      fetch(u1).then(r=>{if(!r.ok)throw new Error('Error Hoja1: '+r.status);return r.text();}),
+      fetch(u2).then(r=>{if(!r.ok)throw new Error('Error Hoja2: '+r.status);return r.text();})
+    ]);
+
+    const rows5 = r5; // raw text, parseHoja5 handles it internally
+    const t1 = parseCSV(r1);
+    const t2 = parseCSV(r2);
+    const h5 = parseHoja5(r5);
+
+    renderFromH5(h5);
+    renderProyectos(t2);
+    renderRisk(t1);
+    renderCelDet(t2);
+
+    const now=new Date();
+    const ts=`${now.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})} · ${now.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`;
+    document.getElementById('last-update').textContent='Última actualización: '+ts;
+    const ub=document.getElementById('ubar'); ub.classList.remove('hide');
+    document.getElementById('ubar-ts').textContent='✓ Datos en vivo · '+ts;
+    document.getElementById('ubar-counts').textContent=`${t1.length} tareas · ${t2.length} proyectos · métricas desde Hoja5`;
+  }catch(e){
+    showErr('Error: '+e.message+'. Verifica que las URLs estén publicadas como CSV y sean accesibles.');
+    document.getElementById('last-update').textContent='Error al cargar';
+  }finally{
+    btn.textContent='↻ Cargar datos'; btn.disabled=false;
+  }
+}
+
+/* ─── VISTA NAVIGATION ─── */
+let currentVista = null;
+
+function openVista(name){
+  document.getElementById('main-content').style.display='none';
+  document.getElementById('btns-vistas').style.display='none';
+  document.querySelectorAll('.vista').forEach(v => v.style.display='none');
+  document.getElementById('vista-'+name).style.display='block';
+  currentVista = name;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function closeVista(){
+  document.querySelectorAll('.vista').forEach(v => v.style.display='none');
+  document.getElementById('main-content').style.display='';
+  document.getElementById('btns-vistas').style.display='flex';
+  currentVista = null;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ─── DEMO con datos reales de Hoja5 ─── */
+function loadDemo(){
+  hideErr();
+  document.getElementById('last-update').textContent='Modo demo · datos reales del Excel';
+  document.getElementById('ubar').classList.remove('hide');
+  document.getElementById('ubar-ts').textContent='✓ Modo demo activo';
+  document.getElementById('ubar-counts').textContent='122 tareas · 133 proyectos · métricas desde Hoja5';
+
+  const demoH5 = {
+    kpis:{avance:0.129,proyectos:133,riesgo:76,bloqueadas:3,diasProm:0},
+    celulas:[
+      {nombre:'Sincronizar',avance:.497},{nombre:'Transformar',avance:.091},
+      {nombre:'Acompañar',avance:.09},{nombre:'Maximizar',avance:.036},
+      {nombre:'Impulsar',avance:.070},{nombre:'Retener',avance:.022},
+    ],
+    alianzas:[
+      {nombre:'UCSS',avance:.837},{nombre:'CENTRAL',avance:.723},
+      {nombre:'EAFIT I',avance:.58},{nombre:'UNIS',avance:.567},
+      {nombre:'EAFIT P',avance:.486},{nombre:'UNINORTE',avance:.469},
+      {nombre:'UNAB',avance:.392},{nombre:'UP',avance:.391},
+      {nombre:'EAFIT D',avance:.325},
+    ],
+    estados:[
+      {estado:'Sin iniciar',UNINORTE:7,CENTRAL:3,UP:28,UCSS:3,'EAFIT P':8,'EAFIT I':2,'EAFIT D':9,UNAB:11,UNIS:11},
+      {estado:'Stan By',UNINORTE:2,CENTRAL:1,UP:0,UCSS:0,'EAFIT P':0,'EAFIT I':0,'EAFIT D':0,UNAB:0,UNIS:1},
+      {estado:'Diseño',UNINORTE:0,CENTRAL:1,UP:3,UCSS:0,'EAFIT P':0,'EAFIT I':0,'EAFIT D':0,UNAB:3,UNIS:2},
+      {estado:'Desarrollo + Pruebas',UNINORTE:1,CENTRAL:6,UP:6,UCSS:0,'EAFIT P':1,'EAFIT I':0,'EAFIT D':1,UNAB:4,UNIS:4},
+      {estado:'Despliegue',UNINORTE:0,CENTRAL:2,UP:1,UCSS:0,'EAFIT P':4,'EAFIT I':0,'EAFIT D':0,UNAB:1,UNIS:2},
+      {estado:'Estabilización',UNINORTE:2,CENTRAL:6,UP:4,UCSS:1,'EAFIT P':3,'EAFIT I':1,'EAFIT D':1,UNAB:4,UNIS:4},
+      {estado:'Cerrado',UNINORTE:6,CENTRAL:9,UP:12,UCSS:15,'EAFIT P':2,'EAFIT I':2,'EAFIT D':3,UNAB:2,UNIS:12},
+    ],
+    proyEstado:{completado:3,noIniciado:103,atrasado:25,enProgreso:2},
+  };
+  renderFromH5(demoH5);
+
+  // Proyectos demo
+  const projs=[
+    {n:'Estructura del curso (flujo est.)',c:'Impulsar',a:.36,d:15,e:'Atrasado',r:5},
+    {n:'Análitica de datos y BI',c:'Transformar',a:.12,d:0,e:'Atrasado',r:12},
+    {n:'Rematrícula Datos (segmentación)',c:'Retener',a:.38,d:0,e:'Atrasado',r:4},
+    {n:'Captación Consulta Saldos',c:'Sincronizar',a:.72,d:0,e:'En Progreso',r:2},
+    {n:'Logística Acad. Integración Notas',c:'Sincronizar',a:.67,d:0,e:'En Progreso',r:0},
+    {n:'Logística Acad. Duplicidad Cursos',c:'Sincronizar',a:.85,d:0,e:'Completado',r:0},
+    {n:'Construcción Matriz pedagógica',c:'Impulsar',a:.65,d:18,e:'Atrasado',r:1},
+  ];
+  const ptb=document.getElementById('proy-tbody'); ptb.innerHTML='';
+  projs.forEach(p=>{
+    const pill=p.e==='Atrasado'?'p-r':p.e==='Completado'?'p-g':p.a<.4?'p-w':'p-b';
+    const ptxt=p.e==='Atrasado'?'⚠ atrasado':p.e==='Completado'?'✓ completado':p.a<.4?'↓ bajo':'● en progreso';
+    ptb.innerHTML+=`<tr><td>${p.n}</td><td><span class="resp">${p.c}</span></td><td class="mono" style="color:${pctC(p.a)};font-weight:600">${Math.round(p.a*100)}%</td><td class="mono" style="color:${p.d>0?'var(--red)':'var(--muted)'}">${p.d>0?p.d+'d':'—'}</td><td><span class="pill ${pill}">${ptxt}</span></td></tr>`;
+  });
+  document.getElementById('b-proy').textContent='133 proyectos';
+
+  // Riesgo demo
+  const risks=[
+    {a:'Capacitación (Formación y Op.)',c:'Retener',p:'Sistema de Riesgo Adm.',r:'Marcelo',al:'UP',av:.0,d:0,b:true},
+    {a:'Curso piloto definido',c:'Impulsar',p:'Estructura del curso',r:'Alejandra',al:'UP',av:.25,d:29,b:false},
+    {a:'Estructura del aula (flujo est.)',c:'Impulsar',p:'Estructura del curso',r:'Alejandra',al:'UP',av:.65,d:22,b:false},
+    {a:'Definición del contenido',c:'Impulsar',p:'Estructura del curso',r:'Alejandra',al:'UP',av:.0,d:8,b:false},
+    {a:'Construcción Matriz pedagógica',c:'Impulsar',p:'Construcción Matriz',r:'Alejandra',al:'UP',av:.65,d:18,b:false},
+    {a:'Canal Digital',c:'Retener',p:'Sistema Riesgo Admin.',r:'Carlos',al:'UNIS',av:.5,d:0,b:true},
+  ];
+  const rtb=document.getElementById('risk-tbody'); rtb.innerHTML='';
+  document.getElementById('b-risk').textContent='76 tareas';
+  risks.forEach(r=>{
+    rtb.innerHTML+=`<tr>
+      <td>${r.a}</td><td><span class="resp">${r.c}</span></td>
+      <td style="font-size:.65rem;color:var(--muted2)">${r.p.slice(0,22)}</td>
+      <td class="mono" style="font-size:.65rem">${r.r}</td>
+      <td class="mono" style="font-size:.63rem">${r.al}</td>
+      <td class="mono" style="color:${pctC(r.av)};font-weight:600">${Math.round(r.av*100)}%</td>
+      <td class="mono" style="color:${r.d>0?'var(--red)':'var(--muted)'}">${r.d>0?r.d+'d':'—'}</td>
+      <td>${r.b?'<span class="pill p-r">🔒 sí</span>':'<span style="color:var(--muted);font-size:.63rem">—</span>'}</td>
+    </tr>`;
+  });
+
+  // Cel det demo
+  const celdet={
+    'Sincronizar':[{n:'Logística Acad. Integración Notas',a:.67,d:0,r:0},{n:'Captación Consulta Saldos',a:.72,d:0,r:2},{n:'Logística Acad. Duplicidad Cursos',a:.85,d:0,r:0}],
+    'Impulsar':[{n:'Estructura del curso (flujo est.)',a:.36,d:15,r:5},{n:'Construcción Matriz pedagógica',a:.65,d:18,r:1},{n:'Definición NCG',a:.45,d:9,r:2}],
+    'Retener':[{n:'Sistema de Riesgo Académico',a:.37,d:0,r:4},{n:'Rematrícula Datos (segmentación)',a:.38,d:0,r:4}],
+    'Transformar':[{n:'Análitica de datos y BI',a:.12,d:0,r:12}],
+    'Acompañar':[{n:'Mesa de ayuda (Aliado + Inst.)',a:.07,d:0,r:21}],
+  };
+  const cdEl=document.getElementById('cel-det'); cdEl.innerHTML='';
+  let tp=0;
+  Object.entries(celdet).forEach(([cel,ps])=>{
+    tp+=ps.length;
+    const avg=ps.reduce((s,p)=>s+p.a,0)/ps.length;
+    const rows=ps.map(p=>`<div class="bar-row">
+      <span class="bar-lbl" style="width:220px;font-size:.71rem">${p.n}</span>
+      <div class="bar-track" style="height:8px"><div class="bar-fill" style="width:${Math.round(p.a*100)}%;background:${pctC(p.a)}"></div></div>
+      <span class="bar-pct" style="width:38px">${Math.round(p.a*100)}%</span>
+      <span class="mono" style="width:40px;color:${p.d>0?'var(--red)':'var(--muted)'};font-size:.63rem">${p.d>0?p.d+'d':''}</span>
+      ${p.r>0?`<span class="pill p-r" style="font-size:.59rem;padding:2px 6px">⚠ ${p.r}</span>`:''}
+    </div>`).join('');
+    cdEl.innerHTML+=`<div style="margin-bottom:1.25rem">
+      <div style="font-size:.69rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;display:flex;align-items:center;gap:8px">
+        ${cel} <span style="font-weight:400;color:var(--muted);font-size:.63rem">${ps.length} proyectos</span>
+        <span style="color:${pctC(avg)};font-size:.63rem;font-family:'DM Mono',monospace;font-weight:600">${Math.round(avg*100)}% promedio</span>
+      </div>${rows}</div>`;
+  });
+  document.getElementById('b-celdet').textContent=tp+' proyectos';
+}
+
+loadDemo();
+</script>
+</body>
+</html>
