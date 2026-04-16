@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AISMART · Panel de Control</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Scala brand */
+  --scala-navy:#3d3d6b;
+  --scala-orange:#f07d2a;
+  --scala-navy-light:#4f4f85;
+  /* Dashboard palette */
+  --bg:#f4f5f9;
+  --bg2:#eceef5;
+  --white:#ffffff;
+  --border:#e2e4ed;
+  --border2:#d0d3e0;
+  --text:#1a1b2e;
+  --muted:#6b6d85;
+  --muted2:#9496aa;
+  --green:#16a87a;
+  --green-bg:#edfaf4;
+  --yellow:#d48f0a;
+  --yellow-bg:#fef8e7;
+  --red:#e03f5a;
+  --red-bg:#fdedf0;
+  --blue:#2d7dd2;
+  --blue-bg:#e8f2fd;
+  --purple:#6b5ce7;
+  --purple-bg:#f0eeff;
+  --orange:var(--scala-orange);
+  --orange-bg:#fff3e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--scala-navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(61,61,107,.18)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{font-size:1.3rem;font-weight:800;color:#fff;letter-spacing:-.02em}
+.logo-text span{color:var(--scala-orange)}
+.logo-sub{font-size:.65rem;color:rgba(255,255,255,.45);font-family:'DM Mono',monospace;letter-spacing:.08em;margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-ts{font-size:.67rem;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22d4a0;display:inline-block;margin-right:5px;animation:blink 2.5s ease-in-out infinite;box-shadow:0 0 6px #22d4a0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── LAYOUT ── */
+.shell{max-width:1380px;margin:0 auto;padding:1.75rem 2rem 4rem}
+
+/* ── SECTION LABELS ── */
+.sec-label{font-size:.65rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.12em;margin:1.5rem 0 .85rem;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── BUTTONS ── */
+.btn{background:var(--scala-navy);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:.74rem;font-family:'Outfit',sans-serif;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn:hover{background:var(--scala-navy-light);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.outline{background:transparent;border:1.5px solid var(--scala-navy);color:var(--scala-navy)}
+.btn.outline:hover{background:var(--scala-navy);color:#fff}
+.btn.orange{background:var(--scala-orange)}
+.btn.orange:hover{opacity:.88}
+
+/* ── CONFIG PANEL ── */
+.cfg{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.cfg-title{font-size:.67rem;font-weight:700;color:var(--scala-navy);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:7px}
+.cfg-title::before{content:'';width:3px;height:12px;background:var(--scala-orange);border-radius:2px;display:inline-block}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:.75rem}
+.cfg-field label{font-size:.62rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;display:block;margin-bottom:4px}
+.cfg-field input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--text);font-size:.71rem;font-family:'DM Mono',monospace;outline:none;transition:border .2s}
+.cfg-field input:focus{border-color:var(--scala-navy)}
+.hint{font-size:.67rem;color:var(--muted2);line-height:1.7;font-family:'DM Mono',monospace}
+.hint strong{color:var(--muted)}
+.err-box{background:var(--red-bg);border:1px solid rgba(224,63,90,.2);border-radius:9px;padding:9px 13px;font-size:.73rem;color:var(--red);margin-top:.75rem;display:none}
+
+/* ── KPI CARDS ── */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--kc,var(--scala-navy));border-radius:0}
+.kpi-icon{font-size:1.3rem;margin-bottom:.6rem;display:block}
+.kpi-lbl{font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.4rem}
+.kpi-val{font-size:2rem;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.04em;font-family:'DM Mono',monospace}
+.kpi-sub{font-size:.64rem;color:var(--muted2);margin-top:.4rem;font-family:'DM Mono',monospace}
+
+/* ── TOGGLE ── */
+.toggle-wrap{display:flex;background:var(--bg2);border-radius:10px;padding:3px;gap:2px;border:1px solid var(--border)}
+.toggle-btn{padding:6px 16px;border-radius:8px;border:none;background:transparent;font-size:.73rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .18s;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:5px}
+.toggle-btn.active{background:var(--white);color:var(--scala-navy);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:1.5rem}
+.cel-card{background:var(--white);border:1.5px solid var(--border);border-radius:18px;padding:1.3rem 1.4rem;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.cel-card:hover{border-color:var(--scala-navy);transform:translateY(-3px);box-shadow:0 8px 28px rgba(61,61,107,.12)}
+.cel-card.active{border-color:var(--scala-orange);box-shadow:0 4px 20px rgba(240,125,42,.15)}
+.cel-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cc,var(--scala-navy));border-radius:0}
+.cel-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.85rem}
+.cel-name{font-size:.95rem;font-weight:700;color:var(--text)}
+.cel-dot{width:10px;height:10px;border-radius:50%;background:var(--cc,var(--scala-navy));flex-shrink:0;margin-top:4px}
+.cel-meta{font-size:.67rem;color:var(--muted2);font-family:'DM Mono',monospace;margin-bottom:.9rem}
+.cel-pct{font-size:2.2rem;font-weight:800;color:var(--text);letter-spacing:-.04em;line-height:1;margin-bottom:.6rem}
+.cel-bar-track{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:.85rem}
+.cel-bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.cel-pills{display:flex;gap:6px;flex-wrap:wrap}
+.cpill{font-size:.61rem;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.cpill-g{background:var(--green-bg);color:var(--green)}
+.cpill-b{background:var(--blue-bg);color:var(--blue)}
+.cpill-r{background:var(--red-bg);color:var(--red)}
+.cpill-y{background:var(--yellow-bg);color:var(--yellow)}
+.cel-arrow{font-size:.7rem;color:var(--muted2);margin-top:.75rem;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px}
+
+/* ── ALIANZA GRID ── */
+.ali-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:1.5rem}
+.ali-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:1rem 1.1rem;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:all .18s}
+.ali-card:hover{border-color:var(--scala-navy);transform:translateY(-2px)}
+.ali-name{font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.ali-pct{font-size:1.65rem;font-weight:800;letter-spacing:-.04em;font-family:'DM Mono',monospace;margin-bottom:.6rem}
+.ali-bar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;margin-bottom:.5rem}
+.ali-bar-fill{height:100%;border-radius:2px;transition:width .8s}
+.ali-tasks{font-size:.62rem;color:var(--muted2);font-family:'DM Mono',monospace}
+
+/* ── ESTADO PILLS ── */
+.estado-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.epill{background:var(--white);border:1.5px solid var(--eb,var(--border));border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:transform .2s}
+.epill:hover{transform:translateY(-2px)}
+.epill-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.epill-icon{font-size:.9rem}
+.epill-val{font-size:2rem;font-weight:800;color:var(--ec);font-family:'DM Mono',monospace;letter-spacing:-.04em;line-height:1}
+.epill-bar-track{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:.6rem}
+.epill-bar-fill{height:100%;background:var(--ec);border-radius:3px;width:0;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.epill-bottom{display:flex;justify-content:space-between;align-items:center}
+.epill-lbl{font-size:.63rem;font-weight:700;color:var(--ec);text-transform:uppercase;letter-spacing:.08em}
+.epill-pct{font-size:.62rem;color:var(--muted2);font-family:'DM Mono',monospace}
+
+/* ── ESTADOS SEGS ── */
+.seg-wrap{margin-bottom:10px}
+.seg-wrap:last-child{margin-bottom:0}
+.seg-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.seg-name{font-size:.7rem;font-weight:600;color:var(--text)}
+.seg-count{font-size:.62rem;color:var(--muted2);font-family:'DM Mono',monospace}
+.seg-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px;background:var(--bg2)}
+.seg-sl{min-width:2px;transition:width .6s ease}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.62rem;color:var(--muted);margin-bottom:12px}
+.legend span{display:flex;align-items:center;gap:4px}
+.ldot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── CARDS LAYOUT ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.3rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-title{font-size:.67rem;font-weight:700;color:var(--scala-navy);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:7px}
+.card-title::before{content:'';width:3px;height:11px;background:var(--scala-orange);border-radius:2px}
+.badge{font-size:.62rem;font-family:'DM Mono',monospace;color:var(--muted2);background:var(--bg2);padding:3px 9px;border-radius:20px;border:1px solid var(--border)}
+.g2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:14px}
+
+/* ── TABLA ── */
+.tbl{width:100%;border-collapse:collapse;font-size:.73rem}
+.tbl th{color:var(--muted);font-weight:700;font-size:.61rem;text-transform:uppercase;letter-spacing:.08em;padding:0 8px 10px 0;text-align:left;border-bottom:2px solid var(--border)}
+.tbl td{padding:9px 8px 9px 0;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg)}
+.mono{font-family:'DM Mono',monospace;font-size:.69rem}
+.pill{display:inline-flex;align-items:center;font-size:.61rem;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
+.p-r{background:var(--red-bg);color:var(--red)}
+.p-w{background:var(--yellow-bg);color:var(--yellow)}
+.p-g{background:var(--green-bg);color:var(--green)}
+.p-b{background:var(--blue-bg);color:var(--blue)}
+.p-n{background:var(--bg2);color:var(--muted)}
+.resp{display:inline-flex;align-items:center;font-size:.61rem;padding:2px 8px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1px solid var(--border);font-family:'DM Mono',monospace}
+
+/* ── VISTA BUTTONS ── */
+.btn-vista{display:flex;align-items:center;gap:12px;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:14px 20px;cursor:pointer;transition:all .2s;color:var(--text);min-width:220px;text-align:left;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.btn-vista:hover{border-color:var(--scala-orange);background:var(--orange-bg);transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,125,42,.12)}
+.bv-icon{font-size:1.4rem;flex-shrink:0}
+.bv-info{display:flex;flex-direction:column;gap:3px;flex:1}
+.bv-title{font-size:.82rem;font-weight:700;color:var(--text)}
+.bv-sub{font-size:.67rem;color:var(--muted2);font-family:'DM Mono',monospace}
+.bv-arrow{font-size:1rem;color:var(--scala-orange);font-weight:700;transition:transform .2s}
+.btn-vista:hover .bv-arrow{transform:translateX(4px)}
+
+/* ── VISTAS ── */
+.vista{animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MODAL CELULA ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,27,46,.45);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:1.5rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px;padding:2rem;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,27,46,.2)}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+.modal-title{font-size:1.1rem;font-weight:800;color:var(--text)}
+.modal-sub{font-size:.72rem;color:var(--muted2);font-family:'DM Mono',monospace;margin-top:3px}
+.modal-close{background:var(--bg2);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1rem;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
+.modal-close:hover{background:var(--red-bg);color:var(--red)}
+.ini-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ini-row:last-child{border-bottom:none}
+.ini-name{font-size:.78rem;font-weight:600;color:var(--text);flex:1;min-width:0}
+.ini-bar-wrap{width:100px;flex-shrink:0}
+.ini-bar-track{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.ini-bar-fill{height:100%;border-radius:3px}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--muted);font-size:.78rem;gap:10px}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--scala-navy);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BAR ROWS ── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:.72rem;color:var(--text);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.bar-track{flex:1;height:7px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.bar-pct{font-size:.67rem;color:var(--muted2);width:36px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+
+/* ── CEO VISTA ── */
+.obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
+.obj-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:1.5rem 1.75rem;box-shadow:0 2px 8px rgba(0,0,0,.06);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.obj-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.1)}
+.obj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--oc)}
+.obj-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+.obj-icon{font-size:2rem;margin-bottom:.25rem}
+.obj-name{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.obj-tag{font-size:.62rem;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(0,0,0,.06);color:var(--oc);display:inline-block}
+.obj-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.obj-kpi{background:var(--bg);border-radius:12px;padding:10px 12px}
+.obj-kpi-val{font-size:1.5rem;font-weight:800;color:var(--text);font-family:'DM Mono',monospace;letter-spacing:-.03em;line-height:1}
+.obj-kpi-lbl{font-size:.6rem;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.obj-progress-lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.obj-progress-title{font-size:.67rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.obj-progress-pct{font-size:.75rem;font-weight:700;color:var(--oc);font-family:'DM Mono',monospace}
+.obj-bar{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:.75rem}
+.obj-bar-fill{height:100%;border-radius:4px;background:var(--oc);transition:width .9s cubic-bezier(.4,0,.2,1)}
+.obj-cels{display:flex;flex-wrap:wrap;gap:5px;margin-top:.5rem}
+.obj-cel-tag{font-size:.62rem;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1px solid var(--border)}
+
+/* Budget section */
+.budget-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:1.5rem 1.75rem;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.budget-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px}
+.budget-total-block{display:flex;gap:24px}
+.budget-total-item{text-align:right}
+.budget-total-val{font-size:1.5rem;font-weight:800;font-family:'DM Mono',monospace;color:var(--text);letter-spacing:-.03em;line-height:1}
+.budget-total-lbl{font-size:.62rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+.brow{display:grid;grid-template-columns:120px 1fr 90px 90px 80px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow-hdr{font-size:.61rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.brow-cel{font-size:.78rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.brow-cel-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.brow-bar-wrap{position:relative;height:28px;background:var(--bg);border-radius:8px;overflow:hidden}
+.brow-bar-total{position:absolute;inset:0;border-radius:8px;background:var(--bg2)}
+.brow-bar-exec{position:absolute;top:0;left:0;bottom:0;border-radius:8px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.brow-val{font-size:.72rem;font-family:'DM Mono',monospace;text-align:right}
+.brow-pct-badge{font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:20px;text-align:center;font-family:'DM Mono',monospace}
+
+/* ── CONFIG INPUT FOCUS ── */
+.cfg-field input:focus{border-color:var(--scala-navy)!important;box-shadow:0 0 0 3px rgba(61,61,107,.1)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.cards-grid{grid-template-columns:repeat(2,1fr)}.ali-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.kpis{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr}.cfg-grid{grid-template-columns:1fr}.cards-grid{grid-template-columns:1fr}.ali-grid{grid-template-columns:repeat(2,1fr)}.estado-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <!-- Scala Learning logo inline SVG -->
+    <svg width="110" height="34" viewBox="0 0 110 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="22" font-family="Outfit,sans-serif" font-weight="800" font-size="20" fill="white">scala</text>
+      <text x="72" y="22" font-family="Outfit,sans-serif" font-weight="800" font-size="20" fill="#f07d2a">.</text>
+      <text x="2" y="32" font-family="Outfit,sans-serif" font-weight="400" font-size="9" fill="rgba(255,255,255,0.5)" letter-spacing="2">LEARNING</text>
+    </svg>
+    <div style="width:1px;height:28px;background:rgba(255,255,255,.15);margin:0 4px"></div>
+    <div>
+      <div class="logo-text">AI<span>SMART</span></div>
+      <div class="logo-sub">Panel de Control de Iniciativas</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-ts"><span class="live-dot"></span><span id="last-update">Sin datos</span></span>
+    <button class="btn" id="btn-load" onclick="loadSheets()" style="background:rgba(255,255,255,.12);font-size:.7rem;padding:6px 14px">↻ Actualizar</button>
+    <button class="btn" onclick="openConfig()" style="background:rgba(255,255,255,.08);font-size:.7rem;padding:6px 14px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;gap:5px">⚙ Configurar</button>
+
+  </div>
+</div>
+
+<!-- SHELL -->
+<!-- Hidden URL inputs - always in DOM regardless of modal state -->
+<input type="hidden" id="url-calc" value="">
+<input type="hidden" id="url-prod" value="">
+<input type="hidden" id="url-sprint" value="">
+
+<div class="shell" id="main-content">
+
+  <!-- ERROR BOX (hidden, shown if load fails) -->
+  <div class="err-box" id="err" style="margin-bottom:1rem"></div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi" style="--kc:var(--scala-navy)">
+      <span class="kpi-icon">📈</span>
+      <div class="kpi-lbl">Avance global</div>
+      <div class="kpi-val" id="k-avance">—</div>
+      <div class="kpi-sub">promedio iniciativas</div>
+    </div>
+    <div class="kpi" style="--kc:var(--blue)">
+      <span class="kpi-icon">📋</span>
+      <div class="kpi-lbl">Iniciativas totales</div>
+      <div class="kpi-val" id="k-proy">—</div>
+      <div class="kpi-sub" id="k-proy-sub">—</div>
+    </div>
+    <div class="kpi" style="--kc:var(--red)">
+      <span class="kpi-icon">⚠️</span>
+      <div class="kpi-lbl">Tareas en riesgo</div>
+      <div class="kpi-val" id="k-riesgo">—</div>
+      <div class="kpi-sub">requieren atención</div>
+    </div>
+    <div class="kpi" style="--kc:var(--orange)">
+      <span class="kpi-icon">🔒</span>
+      <div class="kpi-lbl">Tareas bloqueadas</div>
+      <div class="kpi-val" id="k-bloq">—</div>
+      <div class="kpi-sub">con bloqueo activo</div>
+    </div>
+    <div class="kpi" style="--kc:var(--green)">
+      <span class="kpi-icon">✅</span>
+      <div class="kpi-lbl">Tasa de éxito</div>
+      <div class="kpi-val" id="k-exito">—</div>
+      <div class="kpi-sub">iniciativas completadas</div>
+    </div>
+  </div>
+
+  <!-- TOGGLE + HEADER -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem">
+    <div class="sec-label" style="margin:0;flex:1">Células del programa</div>
+    <div class="toggle-wrap" id="toggle-wrap">
+      <button class="toggle-btn active" id="btn-por-celula" onclick="setView('celula')">🏢 Por Célula</button>
+      <button class="toggle-btn" id="btn-por-alianza" onclick="setView('alianza')">🌐 Por Alianza</button>
+    </div>
+  </div>
+
+  <!-- VISTA CÉLULAS -->
+  <div id="view-celula">
+    <div class="cards-grid" id="cel-cards">
+      <div class="loading" style="grid-column:1/-1"><div class="spin"></div>esperando datos…</div>
+    </div>
+  </div>
+
+  <!-- VISTA ALIANZAS -->
+  <div id="view-alianza" style="display:none">
+    <div class="ali-grid" id="ali-grid">
+      <div class="loading" style="grid-column:1/-1"><div class="spin"></div>esperando datos…</div>
+    </div>
+  </div>
+
+
+
+  <!-- VISTA CEO -->
+  <div class="sec-label">Vista estratégica CEO</div>
+
+  <!-- OBJETIVOS SCALA -->
+  <div id="obj-section" style="margin-bottom:14px">
+    <div class="loading"><div class="spin"></div>esperando…</div>
+  </div>
+
+  <!-- PRESUPUESTO POR CÉLULA -->
+  <div class="sec-label">Inversión por célula</div>
+  <div id="budget-section" style="margin-bottom:14px">
+    <div class="loading"><div class="spin"></div>esperando…</div>
+  </div>
+
+  <!-- CEL BARS (kept hidden, used internally) -->
+  <div style="display:none"><div id="seg-bars"></div><div id="cel-bars"></div><div class="badge" id="b-cel"></div></div>
+
+  <!-- BOTONES VISTAS DETALLE -->
+  <div class="sec-label">Vistas detalle</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:2rem">
+    <button class="btn-vista" onclick="openVista('riesgo')">
+      <span class="bv-icon">⚠️</span>
+      <span class="bv-info"><span class="bv-title">Tareas en riesgo</span><span class="bv-sub" id="bv-riesgo-count">cargando…</span></span>
+      <span class="bv-arrow">→</span>
+    </button>
+    <button class="btn-vista" onclick="openVista('proyectos')">
+      <span class="bv-icon">📋</span>
+      <span class="bv-info"><span class="bv-title">Iniciativas · avance y riesgo</span><span class="bv-sub" id="bv-proy-count">cargando…</span></span>
+      <span class="bv-arrow">→</span>
+    </button>
+    <button class="btn-vista" onclick="openVista('celulas')">
+      <span class="bv-icon">🏢</span>
+      <span class="bv-info"><span class="bv-title">Detalle por célula</span><span class="bv-sub" id="bv-cel-count">cargando…</span></span>
+      <span class="bv-arrow">→</span>
+    </button>
+  </div>
+
+</div><!-- /shell -->
+
+<!-- VISTA: TAREAS EN RIESGO -->
+<div id="vista-riesgo" class="vista" style="display:none">
+  <div style="max-width:1380px;margin:0 auto;padding:1.5rem 2rem 4rem">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+      <button class="btn outline" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:1rem;font-weight:800;color:var(--text)">Tareas en riesgo</span>
+      <div class="badge" id="b-risk">—</div>
+    </div>
+    <div class="card">
+      <table class="tbl">
+        <thead><tr><th>Actividad</th><th>Célula</th><th>Proyecto</th><th>Responsable</th><th>Alianza</th><th>Estado</th><th>Días atraso</th><th>Bloqueado</th></tr></thead>
+        <tbody id="risk-tbody"><tr><td colspan="8"><div class="loading"><div class="spin"></div>esperando…</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA: INICIATIVAS -->
+<div id="vista-proyectos" class="vista" style="display:none">
+  <div style="max-width:1380px;margin:0 auto;padding:1.5rem 2rem 4rem">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+      <button class="btn outline" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:1rem;font-weight:800;color:var(--text)">Iniciativas · avance y riesgo</span>
+      <div class="badge" id="b-proy">—</div>
+    </div>
+    <div class="card">
+      <table class="tbl">
+        <thead><tr><th>Iniciativa</th><th>Célula</th><th>Avance</th><th>Estado</th><th>En riesgo</th><th>Bloqueadas</th><th>Objetivo Scala</th></tr></thead>
+        <tbody id="proy-tbody"><tr><td colspan="7"><div class="loading"><div class="spin"></div>esperando…</div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA: DETALLE CÉLULA -->
+<div id="vista-celulas" class="vista" style="display:none">
+  <div style="max-width:1380px;margin:0 auto;padding:1.5rem 2rem 4rem">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+      <button class="btn outline" onclick="closeVista()" style="font-size:.72rem">← Volver</button>
+      <span style="font-size:1rem;font-weight:800;color:var(--text)">Detalle por célula</span>
+      <div class="badge" id="b-celdet">—</div>
+    </div>
+    <div class="card">
+      <div id="cel-det"><div class="loading"><div class="spin"></div>esperando…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CÉLULA -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modal-title">—</div>
+        <div class="modal-sub" id="modal-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="config-overlay" onclick="closeConfigOutside(event)">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">⚙ Configuración de fuentes</div>
+        <div class="modal-sub">Google Sheets · URLs CSV públicas</div>
+      </div>
+      <button class="modal-close" onclick="closeConfig()">✕</button>
+    </div>
+
+    <div style="margin-bottom:1.25rem;background:var(--bg);border-radius:12px;padding:1rem;font-size:.72rem;color:var(--muted);line-height:1.7">
+      <strong style="color:var(--text)">Cómo obtener las URLs:</strong><br>
+      En Google Sheets → <strong>Archivo → Compartir → Publicar en la web</strong><br>
+      Selecciona cada hoja → formato <strong>Valores separados por comas (CSV)</strong> → Publicar → copia el enlace.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:1.5rem">
+      <div class="cfg-field">
+        <label style="font-size:.67rem;font-weight:700;color:var(--scala-navy);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px">📊 Calculos · Métricas y KPIs</label>
+        <input id="modal-url-calc" placeholder="URL CSV Calculos"
+          style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--text);font-size:.71rem;font-family:'DM Mono',monospace;outline:none;transition:border .2s">
+      </div>
+      <div class="cfg-field">
+        <label style="font-size:.67rem;font-weight:700;color:var(--scala-navy);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px">📋 Producto · Iniciativas</label>
+        <input id="modal-url-prod" placeholder="URL CSV Producto"
+          style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--text);font-size:.71rem;font-family:'DM Mono',monospace;outline:none;transition:border .2s">
+      </div>
+      <div class="cfg-field">
+        <label style="font-size:.67rem;font-weight:700;color:var(--scala-navy);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px">⚡ Sprint · Tareas</label>
+        <input id="modal-url-sprint" placeholder="URL CSV Sprint"
+          style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--text);font-size:.71rem;font-family:'DM Mono',monospace;outline:none;transition:border .2s">
+      </div>
+    </div>
+
+    <div id="cfg-status" style="display:none;margin-bottom:1rem;font-size:.72rem;padding:8px 12px;border-radius:8px"></div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn outline" onclick="closeConfig()">Cancelar</button>
+      <button class="btn" onclick="saveAndLoad()" style="background:var(--scala-orange)">Guardar y cargar datos</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── COLORES POR CÉLULA ─── */
+const CEL_COLORS = {
+  'Sincronizar':'#2d7dd2','Impulsar':'#6b5ce7','Acompañar':'#f07d2a',
+  'Retener':'#e03f5a','Maximizar':'#16a87a','Transformar':'#d48f0a','Atraer':'#2bc8d5'
+};
+const ALI_COLS_PROD = ['E. UNINORTE','E. CENTRAL','E. UP','E. UCSS','E. EAFIT P','E. EAFIT I','E. EAFIT D','E. UNAB','E. UNIS','E. UMV'];
+const ESTADO_C = {'Cerrado':'#16a87a','Estabilización':'#2bc8d5','Despliegue':'#2d7dd2','Desarrollo + Pruebas':'#6b5ce7','Diseño':'#d48f0a','Stan By':'#f07d2a','Sin iniciar':'#9496aa','Sin empezar':'#9496aa'};
+const ESTADO_ORDER = ['Cerrado','Estabilización','Despliegue','Desarrollo + Pruebas','Diseño','Stan By','Sin iniciar','Sin empezar'];
+const MAX_DIAS = 500;
+
+/* ─── STATE ─── */
+let currentView = 'celula';
+let prodData = [], sprintData = [], calcData = null;
+
+/* ─── HELPERS ─── */
+function pctC(v){ return v>=.7?'var(--green)':v>=.4?'var(--yellow)':'var(--red)'; }
+function pctCHex(v){ return v>=.7?'#16a87a':v>=.4?'#d48f0a':'#e03f5a'; }
+function n(v){ const x=parseFloat(String(v||0).replace('%','')); return isNaN(x)?0:x; }
+function parsePct(s){ const str=String(s||'').trim(); if(str.endsWith('%')) return parseFloat(str)/100; const x=parseFloat(str); return isNaN(x)?0:x>1?x/100:x; }
+function showErr(m){ const e=document.getElementById('err'); e.textContent=m; e.style.display='block'; }
+function hideErr(){ document.getElementById('err').style.display='none'; }
+
+/* ─── CSV PARSER ─── */
+function parseCSV(txt){
+  const lines=txt.trim().split('\n');
+  if(!lines.length) return [];
+  const hdr=splitLine(lines[0]);
+  return lines.slice(1).map(l=>{
+    const v=splitLine(l); const o={};
+    hdr.forEach((h,i)=>{ o[h.trim()]=(v[i]||'').trim(); });
+    return o;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+function parseCSVRaw(txt){ return txt.trim().split('\n').map(l=>splitLine(l)); }
+function splitLine(l){
+  const r=[];let cur='';let q=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(c==='"'){q=!q;continue;}
+    if(c===','&&!q){r.push(cur);cur='';continue;}
+    cur+=c;
+  }
+  r.push(cur);return r;
+}
+
+/* ─── PARSE CALCULOS ─── */
+function parseCalculos(csvText){
+  const raw=parseCSVRaw(csvText);
+  const r=(i)=>raw[i]||[];
+  const v=(i,col=1)=>(r(i)[col]||'').trim();
+  const data={
+    kpis:{
+      avance:parsePct(v(2)),
+      proyectos:n(v(3)),
+      riesgo:n(v(4)),
+      bloqueadas:n(v(5)),
+    },
+    celulas:[],alianzas:[],estados:[],proyEstado:{}
+  };
+  // Células F11-F16
+  ['Impulsar','Sincronizar','Acompañar','Retener','Maximizar','Transformar','Atraer'].forEach((cel,idx)=>{
+    const row=r(10+idx);
+    const nombre=(row[0]||'').trim();
+    const av=parsePct(row[1]||'0');
+    if(nombre) data.celulas.push({nombre,avance:av});
+  });
+  // Alianzas F21-F30 (raw 20-29) — now have values directly
+  for(let i=20;i<=29;i++){
+    const nombre=(r(i)[0]||'').trim();
+    const av=parsePct(r(i)[1]||'0');
+    if(nombre.startsWith('E. ') && av>0){
+      // Count tasks from estados table for this alianza
+      data.alianzas.push({nombre:nombre.replace('E. ',''),avance:av});
+    }
+  }
+  // Estados tabla F35-F42 (headers en F34)
+  const aliHdrs=[];
+  const hdrRow=r(33);
+  for(let i=0;i<hdrRow.length;i++){
+    const h=(hdrRow[i]||'').trim().replace('E. ','');
+    if(h&&h!=='TOTAL'&&h!=='') aliHdrs.push(h);
+  }
+  const estadosValidos=['Sin iniciar','Sin empezar','Stan By','Diseño','Desarrollo + Pruebas','Despliegue','Estabilización','Cerrado'];
+  for(let i=34;i<=42;i++){
+    const en=(r(i)[0]||'').trim();
+    if(!estadosValidos.includes(en)) continue;
+    const eRow={estado:en};
+    aliHdrs.forEach((h,idx)=>{ eRow[h]=n(r(i)[idx+1]||0); });
+    data.estados.push(eRow);
+  }
+  // Proyectos estado F50-F53
+  data.proyEstado={completado:n(v(49)),noIniciado:n(v(50)),atrasado:n(v(51)),enProgreso:n(v(52))};
+
+  // Presupuesto por célula F61-F66 (raw 60-65)
+  data.presupuesto=[];
+  for(let i=60;i<=65;i++){
+    const cel=(r(i)[0]||'').trim();
+    const total=n(r(i)[1]||0);
+    const ejecutado=n(r(i)[2]||0);
+    const pctEjec=parsePct(r(i)[3]||'0');
+    if(cel&&(total>0||ejecutado>0)) data.presupuesto.push({cel,total,ejecutado,pctEjec});
+  }
+  // Total presupuesto F67 (raw 66)
+  data.presupuestoTotal={total:n(r(66)[1]||0),ejecutado:n(r(66)[2]||0),pct:parsePct(r(66)[3]||'0')};
+
+  // Iniciativas por objetivo F73-F74 (raw 72-73)
+  // Cols: OBJETIVO | CANTIDAD | EJECUTADAS | % EJECUTADO | PRESUPUESTO EJECUTADO
+  data.objetivos=[];
+  for(let i=72;i<=73;i++){
+    const obj=(r(i)[0]||'').trim();
+    const cantidad=n(r(i)[1]||0);
+    const ejecutadas=n(r(i)[2]||0);
+    const pctEjec=parsePct(r(i)[3]||'0');
+    const presupEjec=n(r(i)[4]||0);
+    if(obj) data.objetivos.push({obj,cantidad,ejecutadas,pctEjec,presupEjec});
+  }
+  data.objetivosTotal={cantidad:n(r(74)[1]||0),ejecutadas:n(r(74)[2]||0),pctEjec:parsePct(r(74)[3]||'0'),presupEjec:n(r(74)[4]||0)};
+
+  return data;
+}
+
+/* ─── TOGGLE ─── */
+function setView(v){
+  currentView=v;
+  document.getElementById('view-celula').style.display=v==='celula'?'':'none';
+  document.getElementById('view-alianza').style.display=v==='alianza'?'':'none';
+  document.getElementById('btn-por-celula').className='toggle-btn'+(v==='celula'?' active':'');
+  document.getElementById('btn-por-alianza').className='toggle-btn'+(v==='alianza'?' active':'');
+}
+
+/* ─── RENDER CÉLULA CARDS ─── */
+function renderCelCards(prod, calc){
+  const el=document.getElementById('cel-cards'); el.innerHTML='';
+  // Group prod by célula
+  const cmap={};
+  prod.forEach(r=>{
+    const c=r['Célula']||r['Celula']; if(!c) return;
+    if(!cmap[c]) cmap[c]=[];
+    cmap[c].push(r);
+  });
+  const sorted=Object.entries(cmap).sort((a,b)=>{
+    const avA=calc?calc.celulas.find(x=>x.nombre===a[0])?.avance||0:0;
+    const avB=calc?calc.celulas.find(x=>x.nombre===b[0])?.avance||0:0;
+    return avB-avA;
+  });
+  document.getElementById('b-cel').textContent=`${sorted.length} células`;
+  sorted.forEach(([cel,ps])=>{
+    const color=CEL_COLORS[cel]||'var(--scala-navy)';
+    const calcCel=calc?.celulas.find(x=>x.nombre===cel);
+    const av=calcCel?calcCel.avance:(ps.reduce((s,p)=>s+parsePct(p['% Completo General']),0)/ps.length)||0;
+    const pct=Math.round(av*100);
+    const completadas=ps.filter(p=>(p['Estado Proyecto']||'').toLowerCase()==='completado').length;
+    const atrasadas=ps.filter(p=>(p['Estado Proyecto']||'').toLowerCase()==='atrasado').length;
+    const enRiesgo=ps.reduce((s,p)=>s+n(p['Tareas en Riesgo']),0);
+    el.innerHTML+=`<div class="cel-card" style="--cc:${color}" onclick="openCelModal('${cel}')">
+      <div class="cel-card-top">
+        <div class="cel-name">${cel}</div>
+        <div class="cel-dot"></div>
+      </div>
+      <div class="cel-meta">${ps.length} iniciativas · ${enRiesgo} en riesgo</div>
+      <div class="cel-pct" style="color:${pctCHex(av)}">${pct}%</div>
+      <div class="cel-bar-track"><div class="cel-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="cel-pills">
+        ${completadas>0?`<span class="cpill cpill-g">✓ ${completadas} completadas</span>`:''}
+        ${atrasadas>0?`<span class="cpill cpill-r">⚠ ${atrasadas} atrasadas</span>`:''}
+        ${(ps.length-completadas-atrasadas)>0?`<span class="cpill cpill-b">● ${ps.length-completadas-atrasadas} en progreso</span>`:''}
+      </div>
+      <div class="cel-arrow">Ver iniciativas <span>→</span></div>
+    </div>`;
+  });
+}
+
+/* ─── RENDER ALIANZA CARDS ─── */
+function renderAliCards(calc){
+  if(!calc) return;
+  const el=document.getElementById('ali-grid'); el.innerHTML='';
+  const sorted=[...calc.alianzas].sort((a,b)=>b.avance-a.avance);
+  sorted.forEach(a=>{
+    const p=Math.round(a.avance*100);
+    const color=pctCHex(a.avance);
+    // Count tasks from estados
+    const total=calc.estados.reduce((s,e)=>s+(e[a.nombre]||0),0);
+    el.innerHTML+=`<div class="ali-card">
+      <div class="ali-name">${a.nombre}</div>
+      <div class="ali-pct" style="color:${color}">${p}%</div>
+      <div class="ali-bar"><div class="ali-bar-fill" style="width:${p}%;background:${color}"></div></div>
+      <div class="ali-tasks">${total} tareas</div>
+    </div>`;
+  });
+}
+
+/* ─── RENDER ESTADOS SEGS ─── */
+function renderSegs(calc){
+  if(!calc) return;
+  const el=document.getElementById('seg-bars'); el.innerHTML='';
+  const aliNames=calc.alianzas.map(a=>a.nombre);
+  aliNames.forEach(ali=>{
+    const counts={};
+    let total=0;
+    calc.estados.forEach(row=>{
+      const v=row[ali]||0;
+      if(v>0&&row.estado!=='na'){counts[row.estado]=v;total+=v;}
+    });
+    if(!total) return;
+    let segs='';
+    ESTADO_ORDER.forEach(k=>{
+      if(!counts[k]) return;
+      const w=Math.round(counts[k]/total*100);
+      segs+=`<div class="seg-sl" style="width:${w}%;background:${ESTADO_C[k]||'#9496aa'}" title="${k}: ${counts[k]}"></div>`;
+    });
+    el.innerHTML+=`<div class="seg-wrap">
+      <div class="seg-top"><span class="seg-name">${ali}</span><span class="seg-count">${total} tareas</span></div>
+      <div class="seg-bar">${segs}</div>
+    </div>`;
+  });
+}
+
+/* ─── RENDER KPIs ─── */
+function renderKPIs(calc, prod){
+  if(!calc) return;
+  const k=calc.kpis;
+  document.getElementById('k-avance').textContent=Math.round(k.avance*100)+'%';
+  document.getElementById('k-proy').textContent=k.proyectos||prod.length;
+  document.getElementById('k-proy-sub').textContent=`${k.proyectos||prod.length} iniciativas totales`;
+  document.getElementById('k-riesgo').textContent=k.riesgo;
+  document.getElementById('k-bloq').textContent=k.bloqueadas;
+  const pe=calc.proyEstado;
+  const total=(pe.completado||0)+(pe.noIniciado||0)+(pe.atrasado||0)+(pe.enProgreso||0)||1;
+  const exito=Math.round(((pe.completado||0)/total)*100);
+  document.getElementById('k-exito').textContent=exito+'%';
+  document.getElementById('k-proy-sub').textContent=`${pe.atrasado||0} atrasadas · ${pe.completado||0} completadas`;
+}
+
+
+/* ─── RENDER CEL BARS ─── */
+function renderCelBars(calc){
+  if(!calc) return;
+  const el=document.getElementById('cel-bars'); el.innerHTML='';
+  const sorted=[...calc.celulas].sort((a,b)=>b.avance-a.avance);
+  sorted.forEach(c=>{
+    const p=Math.round(c.avance*100);
+    const color=CEL_COLORS[c.nombre]||'var(--scala-navy)';
+    el.innerHTML+=`<div class="bar-row">
+      <span class="bar-lbl" title="${c.nombre}">${c.nombre}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${color}"></div></div>
+      <span class="bar-pct">${p}%</span>
+    </div>`;
+  });
+  document.getElementById('b-cel').textContent=`${sorted.length} células`;
+}
+
+/* ─── MODAL CÉLULA ─── */
+function openCelModal(celName){
+  const ps=prodData.filter(r=>(r['Célula']||r['Celula'])===celName);
+  document.getElementById('modal-title').textContent=celName;
+  document.getElementById('modal-sub').textContent=`${ps.length} iniciativas · haz clic en una para ver detalle`;
+  const body=document.getElementById('modal-body');
+  body.innerHTML='';
+  const sorted=[...ps].sort((a,b)=>parsePct(b['% Completo General'])-parsePct(a['% Completo General']));
+  sorted.forEach(p=>{
+    const nombre=p['Nombre Iniciativa']||p['Nombre Proyecto']||'—';
+    const av=parsePct(p['% Completo General']);
+    const pct=Math.round(av*100);
+    const estado=p['Estado Proyecto']||'—';
+    const riesgo=n(p['Tareas en Riesgo']);
+    const obj=p['Objetivo Scala']||'';
+    let pill,ptxt;
+    if(estado==='Atrasado'){pill='p-r';ptxt='⚠ atrasado';}
+    else if(estado==='Completado'){pill='p-g';ptxt='✓ completado';}
+    else if(estado==='Sin Iniciar'){pill='p-n';ptxt='○ sin iniciar';}
+    else{pill='p-b';ptxt='● en progreso';}
+    body.innerHTML+=`<div class="ini-row">
+      <div class="ini-name">
+        <div style="font-weight:600;margin-bottom:2px">${nombre}</div>
+        ${obj?`<div style="font-size:.62rem;color:var(--muted2)">${obj}</div>`:''}
+      </div>
+      <div class="ini-bar-wrap">
+        <div style="font-size:.72rem;font-weight:700;color:${pctCHex(av)};margin-bottom:3px;font-family:'DM Mono',monospace">${pct}%</div>
+        <div class="ini-bar-track"><div class="ini-bar-fill" style="width:${pct}%;background:${pctCHex(av)}"></div></div>
+      </div>
+      <span class="pill ${pill}" style="margin-left:8px;flex-shrink:0">${ptxt}</span>
+      ${riesgo>0?`<span class="pill p-r" style="margin-left:4px;flex-shrink:0">⚠ ${riesgo}</span>`:''}
+    </div>`;
+  });
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+
+/* ─── VISTA NAVIGATION ─── */
+function openVista(name){
+  document.getElementById('main-content').style.display='none';
+  document.querySelectorAll('.vista').forEach(v=>v.style.display='none');
+  document.getElementById('vista-'+name).style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeVista(){
+  document.querySelectorAll('.vista').forEach(v=>v.style.display='none');
+  document.getElementById('main-content').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ─── RENDER RIESGO ─── */
+function renderRisk(sprint){
+  const risky=sprint.filter(r=>{
+    const e=(r['Estado de Tarea']||r['Estado']||'').toLowerCase();
+    return e==='sin iniciar'&&(r['Fecha Fin']||r['Fecha Reprogramada']);
+  });
+  // Actually use Producto data for risk
+  const riskyProd=prodData.filter(p=>n(p['Tareas en Riesgo'])>0);
+  document.getElementById('b-risk').textContent=`${riskyProd.length} iniciativas`;
+  document.getElementById('bv-riesgo-count').textContent=`${riskyProd.length} iniciativas con riesgo`;
+  const tbody=document.getElementById('risk-tbody'); tbody.innerHTML='';
+  if(!riskyProd.length){tbody.innerHTML='<tr><td colspan="8" style="color:var(--green)">✓ Sin tareas en riesgo</td></tr>';return;}
+  riskyProd.sort((a,b)=>n(b['Tareas en Riesgo'])-n(a['Tareas en Riesgo'])).forEach(r=>{
+    const nombre=r['Nombre Iniciativa']||r['Nombre Proyecto']||'—';
+    const cel=r['Célula']||'—';
+    const av=parsePct(r['% Completo General']);
+    const riesgo=n(r['Tareas en Riesgo']);
+    const bloq=n(r['Tareas Bloqueadas']);
+    const dias=n(r['Días Promedio Atrasados']);
+    const diasOk=dias>0&&dias<MAX_DIAS;
+    const estado=r['Estado Proyecto']||'—';
+    let pill,ptxt;
+    if(estado==='Atrasado'){pill='p-r';ptxt='⚠ atrasado';}
+    else if(estado==='Completado'){pill='p-g';ptxt='✓ completado';}
+    else{pill='p-n';ptxt='○ '+estado.toLowerCase();}
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${nombre.length>35?nombre.slice(0,33)+'…':nombre}</td>
+      <td><span class="resp">${cel}</span></td>
+      <td style="font-size:.65rem;color:var(--muted)">${(r['Requerimiento/PRD']||'—').slice(0,20)}</td>
+      <td class="mono" style="font-size:.65rem">${r['Responsable']||'—'}</td>
+      <td class="mono" style="font-size:.63rem">${ALI_COLS_PROD.filter(c=>r[c]&&n(r[c])>0).map(c=>c.replace('E. ','')).join(', ')||'—'}</td>
+      <td><span class="pill ${pill}">${ptxt}</span></td>
+      <td class="mono" style="color:${diasOk?'var(--red)':'var(--muted2)'}">${diasOk?Math.round(dias)+'d':'—'}</td>
+      <td>${bloq>0?`<span class="pill p-r">🔒 ${bloq}</span>`:'<span style="color:var(--muted2)">—</span>'}</td>
+    </tr>`;
+  });
+}
+
+/* ─── RENDER PROYECTOS ─── */
+function renderProyectos(prod){
+  const tbody=document.getElementById('proy-tbody'); tbody.innerHTML='';
+  const sorted=[...prod].sort((a,b)=>n(b['Tareas en Riesgo'])-n(a['Tareas en Riesgo']));
+  sorted.forEach(r=>{
+    const nombre=r['Nombre Iniciativa']||r['Nombre Proyecto']||'—';
+    const cel=r['Célula']||'—';
+    const av=parsePct(r['% Completo General']);
+    const riesgo=n(r['Tareas en Riesgo']);
+    const bloq=n(r['Tareas Bloqueadas']);
+    const estado=r['Estado Proyecto']||'—';
+    const obj=r['Objetivo Scala']||'—';
+    let pill,ptxt;
+    if(estado==='Atrasado'){pill='p-r';ptxt='⚠ atrasado';}
+    else if(estado==='Completado'){pill='p-g';ptxt='✓ completado';}
+    else if(estado==='Sin Iniciar'){pill='p-n';ptxt='○ sin iniciar';}
+    else{pill='p-b';ptxt='● en progreso';}
+    tbody.innerHTML+=`<tr>
+      <td style="font-weight:600">${nombre.length>35?nombre.slice(0,33)+'…':nombre}</td>
+      <td><span class="resp">${cel}</span></td>
+      <td class="mono" style="color:${pctCHex(av)};font-weight:700">${Math.round(av*100)}%</td>
+      <td><span class="pill ${pill}">${ptxt}</span></td>
+      <td class="mono" style="color:${riesgo>0?'var(--red)':'var(--muted2)'}">${riesgo||'—'}</td>
+      <td class="mono" style="color:${bloq>0?'var(--orange)':'var(--muted2)'}">${bloq||'—'}</td>
+      <td style="font-size:.65rem;color:var(--muted2)">${obj}</td>
+    </tr>`;
+  });
+  const total=prod.length;
+  document.getElementById('b-proy').textContent=`${total} iniciativas`;
+  document.getElementById('bv-proy-count').textContent=`${total} iniciativas`;
+}
+
+/* ─── RENDER DETALLE CÉLULA ─── */
+function renderCelDet(prod){
+  const cmap={};
+  prod.forEach(r=>{ const c=r['Célula']||r['Celula']; if(!c){return;} if(!cmap[c])cmap[c]=[]; cmap[c].push(r); });
+  const el=document.getElementById('cel-det'); el.innerHTML='';
+  let tp=0;
+  Object.entries(cmap).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([cel,ps])=>{
+    tp+=ps.length;
+    const color=CEL_COLORS[cel]||'var(--scala-navy)';
+    const avg=ps.reduce((s,p)=>s+parsePct(p['% Completo General']),0)/ps.length;
+    const rows=ps.sort((a,b)=>n(b['Tareas en Riesgo'])-n(a['Tareas en Riesgo'])).map(p=>{
+      const av=parsePct(p['% Completo General']);
+      const r=n(p['Tareas en Riesgo']);
+      const nombre=p['Nombre Iniciativa']||p['Nombre Proyecto']||'—';
+      return `<div class="bar-row">
+        <span class="bar-lbl" title="${nombre}" style="width:220px;font-size:.71rem">${nombre.length>38?nombre.slice(0,36)+'…':nombre}</span>
+        <div class="bar-track" style="height:8px"><div class="bar-fill" style="width:${Math.round(av*100)}%;background:${color}"></div></div>
+        <span class="bar-pct" style="width:38px">${Math.round(av*100)}%</span>
+        ${r>0?`<span class="pill p-r" style="font-size:.59rem;padding:2px 6px;margin-left:4px">⚠ ${r}</span>`:''}
+      </div>`;
+    }).join('');
+    el.innerHTML+=`<div style="margin-bottom:1.4rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.65rem">
+        <div style="width:4px;height:16px;background:${color};border-radius:2px"></div>
+        <span style="font-size:.78rem;font-weight:700;color:var(--text)">${cel}</span>
+        <span style="font-size:.65rem;color:var(--muted2);font-family:'DM Mono',monospace">${ps.length} iniciativas · ${Math.round(avg*100)}% promedio</span>
+      </div>${rows}
+    </div>`;
+  });
+  document.getElementById('b-celdet').textContent=`${tp} iniciativas`;
+  document.getElementById('bv-cel-count').textContent=`${tp} iniciativas en ${Object.keys(cmap).length} células`;
+}
+
+/* ─── CONFIG MODAL ─── */
+const LS_KEYS = {calc:'aismart_url_calc', prod:'aismart_url_prod', sprint:'aismart_url_sprint'};
+const DEFAULT_URLS = {
+  calc:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=231933605&single=true&output=csv',
+  prod:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=386302620&single=true&output=csv',
+  sprint: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=1837031830&single=true&output=csv',
+};
+
+function openConfig(){
+  // Sync current URLs to modal inputs
+  document.getElementById('modal-url-calc').value   = document.getElementById('url-calc').value;
+  document.getElementById('modal-url-prod').value   = document.getElementById('url-prod').value;
+  document.getElementById('modal-url-sprint').value = document.getElementById('url-sprint').value;
+  document.getElementById('cfg-status').style.display='none';
+  document.getElementById('config-overlay').classList.add('open');
+}
+
+function closeConfig(){
+  document.getElementById('config-overlay').classList.remove('open');
+}
+
+function closeConfigOutside(e){
+  if(e.target===document.getElementById('config-overlay')) closeConfig();
+}
+
+function showCfgStatus(msg, ok){
+  const el=document.getElementById('cfg-status');
+  el.textContent=msg;
+  el.style.display='block';
+  el.style.background=ok?'var(--green-bg)':'var(--red-bg)';
+  el.style.color=ok?'var(--green)':'var(--red)';
+  el.style.border=`1px solid ${ok?'rgba(22,168,122,.2)':'rgba(224,63,90,.2)'}`;
+}
+
+async function saveAndLoad(){
+
+  if(!uc||!up||!us){
+    showCfgStatus('⚠ Completa las 3 URLs antes de continuar.', false);
+    return;
+  }
+  // Save to localStorage
+  try{
+    localStorage.setItem(LS_KEYS.calc, uc);
+    localStorage.setItem(LS_KEYS.prod, up);
+    localStorage.setItem(LS_KEYS.sprint, us);
+  }catch(e){}
+  showCfgStatus('✓ URLs guardadas. Cargando datos...', true);
+  setTimeout(async()=>{
+    closeConfig();
+    await loadSheets();
+  }, 800);
+}
+
+function loadSavedUrls(){
+  // Load from localStorage if saved, otherwise use defaults
+  try{
+    const uc=localStorage.getItem(LS_KEYS.calc)||DEFAULT_URLS.calc;
+    const up=localStorage.getItem(LS_KEYS.prod)||DEFAULT_URLS.prod;
+    const us=localStorage.getItem(LS_KEYS.sprint)||DEFAULT_URLS.sprint;
+    // Populate hidden inputs (always in DOM)
+    document.getElementById('url-calc').value   = uc;
+    document.getElementById('url-prod').value   = up;
+    document.getElementById('url-sprint').value = us;
+    return true;
+  }catch(e){ console.error('loadSavedUrls error:', e); }
+  return false;
+}
+
+/* ─── MAIN LOAD ─── */
+async function loadSheets(){
+  // Always read from inputs (pre-filled by loadSavedUrls or config modal)
+  const urlCalc   = document.getElementById('url-calc').value.trim();
+  const urlProd   = document.getElementById('url-prod').value.trim();
+  const urlSprint = document.getElementById('url-sprint').value.trim();
+
+  if(!urlCalc||!urlProd||!urlSprint){
+    showErr('⚠ URLs no configuradas. Haz clic en ⚙ Configurar para agregar las URLs de Google Sheets.');
+    return;
+  }
+  hideErr();
+  const btn=document.getElementById('btn-load');
+  btn.textContent='⏳'; btn.disabled=true;
+  document.getElementById('last-update').textContent='Cargando datos…';
+
+  try{
+    console.log('🔵 FETCH — iniciando requests...');
+    console.log('  urlCalc:', urlCalc.substring(0,60));
+    const [rc,rp,rs]=await Promise.all([
+      fetch(urlCalc).then(r=>{console.log('  calculos status:', r.status);if(!r.ok)throw new Error('Error Calculos: '+r.status);return r.text();}),
+      fetch(urlProd).then(r=>{console.log('  producto status:', r.status);if(!r.ok)throw new Error('Error Producto: '+r.status);return r.text();}),
+      fetch(urlSprint).then(r=>{console.log('  sprint status:', r.status);if(!r.ok)throw new Error('Error Sprint: '+r.status);return r.text();})
+    ]);
+    console.log('✅ CSVs descargados — Calculos:', rc.length, 'chars | Producto:', rp.length, 'chars | Sprint:', rs.length, 'chars');
+    calcData=parseCalculos(rc);
+    console.log('  calcData KPIs:', calcData.kpis);
+    console.log('  calcData células:', calcData.celulas.length, '| alianzas:', calcData.alianzas.length);
+    prodData=parseCSV(rp);
+    console.log('  prodData rows:', prodData.length);
+    sprintData=parseCSV(rs);
+    console.log('  sprintData rows:', sprintData.length);
+    renderAll();
+    const now=new Date();
+    document.getElementById('last-update').textContent=`Actualizado ${now.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})} ${now.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`;
+  }catch(e){
+    showErr('Error: '+e.message+'. Verifica que las URLs estén publicadas como CSV.');
+    document.getElementById('last-update').textContent='Error al cargar';
+  }finally{
+    btn.textContent='↻ Actualizar'; btn.disabled=false;
+  }
+}
+
+
+/* ─── CONFIG MODAL ─── */
+const LS_KEYS = {calc:'aismart_url_calc', prod:'aismart_url_prod', sprint:'aismart_url_sprint'};
+const DEFAULT_URLS = {
+  calc:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=231933605&single=true&output=csv',
+  prod:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=386302620&single=true&output=csv',
+  sprint: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo-2vwXZjnkWQuQM6wCyO2AOYqLa-C1xpvHMhV9Xf4esMWr2m8knZw8PUifmspJw/pub?gid=1837031830&single=true&output=csv',
+};
+
+function openConfig(){
+  // Sync current URLs to modal inputs
+  document.getElementById('modal-url-calc').value   = document.getElementById('url-calc').value;
+  document.getElementById('modal-url-prod').value   = document.getElementById('url-prod').value;
+  document.getElementById('modal-url-sprint').value = document.getElementById('url-sprint').value;
+  document.getElementById('cfg-status').style.display='none';
+  document.getElementById('config-overlay').classList.add('open');
+}
+
+function closeConfig(){
+  document.getElementById('config-overlay').classList.remove('open');
+}
+
+function closeConfigOutside(e){
+  if(e.target===document.getElementById('config-overlay')) closeConfig();
+}
+
+function showCfgStatus(msg, ok){
+  const el=document.getElementById('cfg-status');
+  el.textContent=msg;
+  el.style.display='block';
+  el.style.background=ok?'var(--green-bg)':'var(--red-bg)';
+  el.style.color=ok?'var(--green)':'var(--red)';
+  el.style.border=`1px solid ${ok?'rgba(22,168,122,.2)':'rgba(224,63,90,.2)'}`;
+}
+
+async function saveAndLoad(){
+
+  if(!uc||!up||!us){
+    showCfgStatus('⚠ Completa las 3 URLs antes de continuar.', false);
+    return;
+  }
+  // Save to localStorage
+  try{
+    localStorage.setItem(LS_KEYS.calc, uc);
+    localStorage.setItem(LS_KEYS.prod, up);
+    localStorage.setItem(LS_KEYS.sprint, us);
+  }catch(e){}
+  showCfgStatus('✓ URLs guardadas. Cargando datos...', true);
+  setTimeout(async()=>{
+    closeConfig();
+    await loadSheets();
+  }, 800);
+}
+
+function loadSavedUrls(){
+  // Load from localStorage if saved, otherwise use defaults
+  try{
+    const uc=localStorage.getItem(LS_KEYS.calc)||DEFAULT_URLS.calc;
+    const up=localStorage.getItem(LS_KEYS.prod)||DEFAULT_URLS.prod;
+    const us=localStorage.getItem(LS_KEYS.sprint)||DEFAULT_URLS.sprint;
+    // Populate hidden inputs (always in DOM)
+    document.getElementById('url-calc').value   = uc;
+    document.getElementById('url-prod').value   = up;
+    document.getElementById('url-sprint').value = us;
+    return true;
+  }catch(e){ console.error('loadSavedUrls error:', e); }
+  return false;
+}
+
+/* ─── MAIN LOAD ─── */
+async function loadSheets(){
+  const uc=document.getElementById('url-calc').value.trim();
+  const up=document.getElementById('url-prod').value.trim();
+  const us=document.getElementById('url-sprint').value.trim();
+  if(!uc||!up||!us){showErr('Completa las 3 URLs CSV para continuar.');return;}
+  hideErr();
+  const btn=document.getElementById('btn-load');
+  btn.textContent='⏳'; btn.disabled=true;
+  document.getElementById('last-update').textContent='Cargando datos…';
+  // Read URLs from inputs (populated from localStorage or config modal)
+  const urlCalc=document.getElementById('url-calc').value.trim();
+  const urlProd=document.getElementById('url-prod').value.trim();
+  const urlSprint=document.getElementById('url-sprint').value.trim();
+  try{
+    const [rc,rp,rs]=await Promise.all([
+      fetch(uc).then(r=>{if(!r.ok)throw new Error('Error Calculos');return r.text();}),
+      fetch(up).then(r=>{if(!r.ok)throw new Error('Error Producto');return r.text();}),
+      fetch(us).then(r=>{if(!r.ok)throw new Error('Error Sprint');return r.text();})
+    ]);
+    calcData=parseCalculos(rc);
+    prodData=parseCSV(rp);
+    sprintData=parseCSV(rs);
+    renderAll();
+    const now=new Date();
+    document.getElementById('last-update').textContent=`Actualizado ${now.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})} ${now.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`;
+  }catch(e){
+    showErr('Error: '+e.message);
+    document.getElementById('last-update').textContent='Error al cargar';
+  }finally{btn.textContent='↻ Actualizar';btn.disabled=false;}
+}
+
+/* ─── RENDER CEO OBJETIVOS ─── */
+function renderObjetivos(calc, prod){
+  if(!calc||!calc.objetivos) return;
+  const el=document.getElementById('obj-section');
+  el.innerHTML='<div class="obj-grid" id="obj-grid"></div>';
+  const grid=document.getElementById('obj-grid');
+
+  const OBJ_CONFIG={
+    'Business Intelligence':{icon:'📊',color:'#2d7dd2',desc:'Datos e inteligencia para la toma de decisiones'},
+    'Producto Analitico':{icon:'🤖',color:'#6b5ce7',desc:'Productos analíticos con IA'},
+  };
+
+  // Compute avance by objetivo from prod data
+  const objAvance={};
+  const objCelulas={};
+  prod.forEach(r=>{
+    const obj=r['Objetivo Scala']||r['Objetivo scala'];
+    const av=parsePct(r['% Completo General']);
+    if(!obj) return;
+    if(!objAvance[obj]) objAvance[obj]=[];
+    objAvance[obj].push(av);
+    if(!objCelulas[obj]) objCelulas[obj]=new Set();
+    if(r['Célula']||r['Celula']) objCelulas[obj].add(r['Célula']||r['Celula']);
+  });
+
+  const total=calc.objetivosTotal;
+  calc.objetivos.forEach(o=>{
+    const cfg=OBJ_CONFIG[o.obj]||{icon:'🎯',color:'var(--scala-navy)',desc:''};
+    const avs=objAvance[o.obj]||[];
+    const avgAv=avs.length?avs.reduce((s,x)=>s+x,0)/avs.length:0;
+    const pctEjec=o.pctEjec?Math.round(o.pctEjec*100):Math.round((o.ejecutadas/o.cantidad)*100)||0;
+    const cels=[...(objCelulas[o.obj]||new Set())];
+    const presupFmt=o.presupEjec>0?'$'+o.presupEjec.toLocaleString('es-CO'):'Sin presupuesto asignado';
+    grid.innerHTML+=`<div class="obj-card" style="--oc:${cfg.color}">
+      <div class="obj-header">
+        <div>
+          <div style="font-size:2rem;margin-bottom:6px">${cfg.icon}</div>
+          <div class="obj-name">${o.obj}</div>
+          <div style="font-size:.67rem;color:var(--muted2);margin-top:3px">${cfg.desc}</div>
+        </div>
+        <span class="obj-tag">Objetivo Scala</span>
+      </div>
+      <div class="obj-kpis">
+        <div class="obj-kpi">
+          <div class="obj-kpi-val">${o.cantidad}</div>
+          <div class="obj-kpi-lbl">Iniciativas</div>
+        </div>
+        <div class="obj-kpi">
+          <div class="obj-kpi-val" style="color:${cfg.color}">${o.ejecutadas}</div>
+          <div class="obj-kpi-lbl">Ejecutadas</div>
+        </div>
+        <div class="obj-kpi">
+          <div class="obj-kpi-val" style="color:${pctCHex(avgAv)}">${Math.round(avgAv*100)}%</div>
+          <div class="obj-kpi-lbl">Avance</div>
+        </div>
+      </div>
+      <div class="obj-progress-lbl">
+        <span class="obj-progress-title">Ejecución de iniciativas</span>
+        <span class="obj-progress-pct">${pctEjec}%</span>
+      </div>
+      <div class="obj-bar"><div class="obj-bar-fill" style="width:${pctEjec}%"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="obj-cels">${cels.map(c=>`<span class="obj-cel-tag" style="border-color:${CEL_COLORS[c]||'#ccc'};color:${CEL_COLORS[c]||'#666'}">${c}</span>`).join('')}</div>
+        <div style="font-size:.7rem;font-weight:700;color:${cfg.color};font-family:'DM Mono',monospace">${presupFmt}</div>
+      </div>
+    </div>`;
+  });
+  // animate bars
+  setTimeout(()=>document.querySelectorAll('.obj-bar-fill').forEach(el=>el.style.transition='width .9s cubic-bezier(.4,0,.2,1)'),50);
+}
+
+/* ─── RENDER PRESUPUESTO ─── */
+function renderPresupuesto(calc){
+  if(!calc||!calc.presupuesto) return;
+  const el=document.getElementById('budget-section'); el.innerHTML='';
+
+  const pt=calc.presupuestoTotal;
+  const pctGlobal=pt.total>0?Math.round((pt.ejecutado/pt.total)*100):0;
+
+  el.innerHTML=`<div class="budget-card">
+    <div class="budget-header">
+      <div>
+        <div style="font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:4px">Presupuesto total del programa</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:2rem;font-weight:800;font-family:'DM Mono',monospace;color:var(--text)">$${pt.total.toLocaleString('es-CO')}</span>
+          <span class="badge" style="font-size:.72rem">$${pt.ejecutado.toLocaleString('es-CO')} ejecutado · ${pctGlobal}%</span>
+        </div>
+      </div>
+      <div class="budget-total-block">
+        <div class="budget-total-item">
+          <div class="budget-total-val" style="color:var(--scala-orange)">${pctGlobal}%</div>
+          <div class="budget-total-lbl">% ejecutado</div>
+        </div>
+        <div class="budget-total-item">
+          <div class="budget-total-val" style="color:var(--red)">$${(pt.total-pt.ejecutado).toLocaleString('es-CO')}</div>
+          <div class="budget-total-lbl">Saldo</div>
+        </div>
+      </div>
+    </div>
+    <div class="brow brow-hdr">
+      <div>Célula</div><div>Ejecución presupuestal</div>
+      <div style="text-align:right">Asignado</div>
+      <div style="text-align:right">Ejecutado</div>
+      <div style="text-align:right">% Ejec.</div>
+    </div>
+    ${calc.presupuesto.map(p=>{
+      const color=CEL_COLORS[p.cel]||'var(--scala-navy)';
+      const pct=Math.round(p.pctEjec*100);
+      const pctColor=pct>=80?'var(--green)':pct>=40?'var(--yellow)':'var(--red)';
+      const bgColor=pct>=80?'var(--green-bg)':pct>=40?'var(--yellow-bg)':'var(--red-bg)';
+      return `<div class="brow">
+        <div class="brow-cel"><div class="brow-cel-dot" style="background:${color}"></div>${p.cel}</div>
+        <div class="brow-bar-wrap">
+          <div class="brow-bar-total"></div>
+          <div class="brow-bar-exec" style="width:${pct}%;background:${color};opacity:.8"></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;padding:0 10px">
+            <span style="font-size:.65rem;font-weight:600;color:${color}">${pct}% · $${p.ejecutado.toLocaleString('es-CO')} de $${p.total.toLocaleString('es-CO')}</span>
+          </div>
+        </div>
+        <div class="brow-val">$${p.total.toLocaleString('es-CO')}</div>
+        <div class="brow-val" style="color:${color};font-weight:700">$${p.ejecutado.toLocaleString('es-CO')}</div>
+        <div><span class="brow-pct-badge" style="background:${bgColor};color:${pctColor}">${pct}%</span></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderAll(){
+  renderKPIs(calcData,prodData);
+  renderCelCards(prodData,calcData);
+  renderAliCards(calcData);
+  renderSegs(calcData);
+  renderCelBars(calcData);
+  renderObjetivos(calcData,prodData);
+  renderPresupuesto(calcData);
+  renderRisk(sprintData);
+  renderProyectos(prodData);
+  renderCelDet(prodData);
+}
+
+
+// Startup — wait for full DOM then load
+document.addEventListener('DOMContentLoaded', async()=>{
+  loadSavedUrls();
+  document.getElementById('last-update').textContent='Cargando datos…';
+  await loadSheets();
+});
+</script>
+</body>
+</html>
